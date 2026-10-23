@@ -10,8 +10,16 @@
           <td>{{ ticket['category'] }}</td>
           <td>{{ ticket['building'] }} · {{ ticket['room_number'] }}</td>
           <td><span class="status status-{{ ticket['status']|lower }}">{{ {'PENDING':'待处理','ACCEPTED':'已接单','IN_PROGRESS':'维修中','COMPLETED':'已完成'}[ticket['status']] }}</span></td>
-          <td><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at'] }}</time></td>
-          <td><a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket['id']) }}">查看详情</a></td>
+          <td><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at']|local_time }}</time></td>
+          <td>
+            <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket['id']) }}">查看详情</a>
+            {% if g.user['role'] == 'repairer' and ticket['status'] == 'PENDING' %}
+              <form class="queue-action" method="post" action="{{ url_for('tickets.accept_ticket', ticket_id=ticket['id']) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button" type="submit">接单</button>
+              </form>
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

@@ -17,18 +17,76 @@
     <div><dt>楼栋</dt><dd>{{ ticket['building'] }}</dd></div>
     <div><dt>宿舍号</dt><dd>{{ ticket['room_number'] }}</dd></div>
     <div><dt>当前状态</dt><dd>{{ status_label }}</dd></div>
-    <div><dt>创建时间</dt><dd><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at'] }}</time></dd></div>
+    <div><dt>创建时间（北京时间）</dt><dd><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at']|local_time }}</time></dd></div>
+    <div><dt>维修负责人</dt><dd>{{ ticket['assignee_name'] or '待接单' }}</dd></div>
+    {% for field, label in [('assigned_at','接单时间'),('started_at','开始维修'),('completed_at','维修完成'),('confirmed_at','学生确认'),('reviewed_at','评价时间'),('updated_at','最近更新')] %}
+      {% if ticket[field] %}<div><dt>{{ label }}</dt><dd>{{ ticket[field]|local_time }}</dd></div>{% endif %}
+    {% endfor %}
   </dl>
   <section class="description-block">
     <h2>故障描述</h2>
     <p>{{ ticket['description'] }}</p>
   </section>
-  {% if ticket['assignee_id'] %}
-    <p class="field-help">该工单已有维修负责人。为保护账号信息，详情页仅展示处理状态。</p>
-  {% else %}
-    <p class="field-help">当前尚无维修负责人。</p>
+  {% if ticket['rating'] %}
+    <section class="description-block">
+      <h2>学生评价：{{ ticket['rating'] }} / 5 分</h2>
+      <p>{{ ticket['review_text'] or '未填写短评。' }}</p>
+    </section>
   {% endif %}
 </article>
+
+{% if action_error %}<div class="alert alert-danger" role="alert">{{ action_error }}</div>{% endif %}
+<section class="card workflow-actions">
+{% if g.user['role'] == 'repairer' %}
+  {% if ticket['status'] == 'PENDING' %}
+    <h2>接单处理</h2>
+    <p>接单后由你负责推进该工单。</p>
+    <form method="post" action="{{ url_for('tickets.accept_ticket', ticket_id=ticket['id']) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button" type="submit">接单</button>
+    </form>
+  {% elif ticket['assignee_id'] == g.user['id'] and ticket['status'] in ['ACCEPTED','IN_PROGRESS'] %}
+    {% set next_endpoint = 'tickets.start_ticket' if ticket['status'] == 'ACCEPTED' else 'tickets.complete_ticket' %}
+    <form method="post" action="{{ url_for(next_endpoint, ticket_id=ticket['id']) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button" type="submit">{{ '开始维修' if ticket['status'] == 'ACCEPTED' else '完成维修' }}</button>
+    </form>
+  {% else %}
+    <h2>维修已完成</h2>
+    <p>维修状态已归档，可查看学生确认及评价结果。</p>
+  {% endif %}
+{% elif ticket['status'] != 'COMPLETED' %}
+  <h2>等待维修处理</h2>
+  <p>维修人员完成处理后，你可以确认完成并提交评价。</p>
+{% elif not ticket['confirmed_at'] %}
+  <h2>维修已完成 · 待确认</h2>
+  <p>请检查维修结果，确认后可以评价。</p>
+  <form method="post" action="{{ url_for('tickets.confirm_ticket', ticket_id=ticket['id']) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="button" type="submit">确认完成</button>
+  </form>
+{% elif not ticket['rating'] %}
+  <h2>已确认 · 待评价</h2>
+  <form method="post" action="{{ url_for('tickets.review_ticket', ticket_id=ticket['id']) }}" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="rating">维修评分（1–5 分）</label>
+      <select name="rating" id="rating" required>
+        <option value="">请选择评分</option>
+        {% for score in ['1','2','3','4','5'] %}<option value="{{ score }}" {% if review_values and review_values.get('rating') == score %}selected{% endif %}>{{ score }} 分</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="review_text">评价短评（可选，最多 500 字符）</label>
+      <textarea name="review_text" id="review_text" rows="3" maxlength="500">{{ review_values.get('review_text', '') if review_values else '' }}</textarea>
+    </div>
+    <button class="button" type="submit">提交评价</button>
+  </form>
+{% else %}
+  <h2>已评价</h2>
+  <p>你的评价已保存，此工单处理流程已完成。</p>
+{% endif %}
+</section>
 
 <div class="form-actions detail-actions">
   {% if g.user['role'] == 'student' %}

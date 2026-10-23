@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import secrets
+from datetime import datetime, timedelta, timezone
 
 from flask import (
     Blueprint,
@@ -30,6 +31,8 @@ from .services import (
     TicketInput,
     TicketStorageError,
     create_ticket,
+    TicketActionError,
+    apply_ticket_action,
 )
 
 
@@ -188,4 +191,69 @@ def ticket_detail(ticket_id: int):
     return render_template(
         "tickets/detail.html", ticket=ticket, status_label=STATUS_LABELS[ticket["status"]]
     )
+
+
+@bp.app_template_filter("local_time")
+def local_time(value):
+    if not value:
+        return "尚未发生"
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(
+        timezone(timedelta(hours=8))
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _perform_action(ticket_id: int, action: str):
+    try:
+        apply_ticket_action(ticket_id, actor=g.user, action=action, form_data=request.form)
+    except TicketActionError as error:
+        if error.code == 400 and action == "review":
+            ticket = get_visible_ticket(ticket_id, user_id=g.user["id"], role=g.user["role"])
+            return render_template(
+                "tickets/detail.html", ticket=ticket,
+                status_label=STATUS_LABELS[ticket["status"]],
+                action_error=str(error), review_values=request.form,
+            ), 400
+        return render_template(
+            "error.html", code=error.code, title="操作未完成", message=str(error)
+        ), error.code
+    except TicketStorageError as error:
+        return render_template(
+            "error.html", code=503, title="保存未完成", message=str(error)
+        ), 503
+    messages = {
+        "accept": "接单成功。", "start": "已开始维修。", "complete": "维修已完成，等待学生确认。",
+        "confirm": "已确认维修完成，现在可以评价。", "review": "评价已保存，感谢反馈。",
+    }
+    flash(messages[action], "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket_id), code=303)
+
+
+@bp.post("/tickets/<int:ticket_id>/accept")
+@role_required("repairer")
+def accept_ticket(ticket_id: int):
+    return _perform_action(ticket_id, "accept")
+
+
+@bp.post("/tickets/<int:ticket_id>/start")
+@role_required("repairer")
+def start_ticket(ticket_id: int):
+    return _perform_action(ticket_id, "start")
+
+
+@bp.post("/tickets/<int:ticket_id>/complete")
+@role_required("repairer")
+def complete_ticket(ticket_id: int):
+    return _perform_action(ticket_id, "complete")
+
+
+@bp.post("/tickets/<int:ticket_id>/confirm")
+@role_required("student")
+def confirm_ticket(ticket_id: int):
+    return _perform_action(ticket_id, "confirm")
+
+
+@bp.post("/tickets/<int:ticket_id>/review")
+@role_required("student")
+def review_ticket(ticket_id: int):
+    return _perform_action(ticket_id, "review")
 

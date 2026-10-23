@@ -63,6 +63,8 @@ def get_visible_ticket(ticket_id: int, *, user_id: int, role: str):
         "id, student_id, assignee_id, building, room_number, category, description, "
         "status, created_at, updated_at, assigned_at, started_at, completed_at, "
         "confirmed_at, rating, review_text, reviewed_at"
+        ", (SELECT u.display_name FROM users AS u WHERE u.id = repair_tickets.assignee_id) "
+        "AS assignee_name"
     )
     if role == "student":
         return db.execute(

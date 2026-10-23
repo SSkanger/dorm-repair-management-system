@@ -2,9 +2,9 @@
 {% block title %}维修工单 · 宿舍报修管理系统{% endblock %}
 {% block content %}
 <section class="page-heading">
-  <p class="eyebrow">维修人员只读视图</p>
+  <p class="eyebrow">维修工作台</p>
   <h1>维修工单</h1>
-  <p class="lead">显示无人接单的待处理工单，以及当前账号负责的工单。Phase 2 暂不提供接单或状态操作。</p>
+  <p class="lead">显示无人接单的待处理工单，以及当前账号负责的工单。接单后可在详情中开始和完成维修。</p>
 </section>
 {% if ticket_page.items %}
   {% include 'tickets/table.html' %}
