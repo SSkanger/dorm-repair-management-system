@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ role_title }} · 宿舍报修管理系统{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">身份已验证</p>
+  <h1>{{ role_title }}</h1>
+  <p class="lead">你好，{{ g.user['display_name'] }}。当前登录账号为 <strong>{{ g.user['username'] }}</strong>。</p>
+</section>
+<section class="empty-state">
+  <span aria-hidden="true">✓</span>
+  <h2>身份与权限基础已生效</h2>
+  <p>Phase 1 不展示工单或统计数据。后续功能将在对应阶段通过审核后开放。</p>
+</section>
+{% endblock %}
+

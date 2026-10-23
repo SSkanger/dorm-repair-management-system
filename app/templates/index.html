@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}首页 · 宿舍报修管理系统{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">企业级 AI 软件设计与开发 · 第 8 题</p>
+    <h1>让宿舍维修流程清晰、可靠、可追踪</h1>
+    <p class="lead">当前已完成项目基础、数据库与身份认证。报修及维修业务将在后续经审核的阶段实现。</p>
+    {% if g.user %}
+      <a class="button" href="{{ url_for('pages.portal') }}">进入我的入口</a>
+    {% else %}
+      <a class="button" href="{{ url_for('auth.login') }}">使用演示账号登录</a>
+    {% endif %}
+  </div>
+  <aside class="status-card">
+    <span class="status-dot"></span>
+    <strong>基础服务已就绪</strong>
+    <p>服务端会话、角色身份和 SQLite 数据基础已启用。</p>
+  </aside>
+</section>
+<section class="feature-grid" aria-label="系统角色">
+  <article class="card">
+    <span class="icon" aria-hidden="true">学</span>
+    <h2>学生端</h2>
+    <p>身份入口已建立。报修提交、查询和评价尚未在本阶段开放。</p>
+  </article>
+  <article class="card">
+    <span class="icon" aria-hidden="true">修</span>
+    <h2>维修端</h2>
+    <p>身份入口已建立。接单和状态更新尚未在本阶段开放。</p>
+  </article>
+</section>
+{% endblock %}
+

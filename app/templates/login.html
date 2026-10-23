@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}登录 · 宿舍报修管理系统{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-copy">
+    <p class="eyebrow">安全登录</p>
+    <h1>进入宿舍报修系统</h1>
+    <p>使用由管理员显式创建的课程演示账号。系统不会在页面或源码中展示账号密码。</p>
+  </div>
+  <form class="form-card" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="field">
+      {{ form.username.label }}
+      {{ form.username(autocomplete='username', autofocus=true) }}
+      {% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.password.label }}
+      {{ form.password(autocomplete='current-password') }}
+      {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    {{ form.submit(class_='button full') }}
+  </form>
+</section>
+{% endblock %}
+
