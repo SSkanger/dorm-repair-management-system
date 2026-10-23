@@ -1,0 +1,8 @@
+{
+  "fresh_directory": true,
+  "fresh_virtualenv": true,
+  "pip_no_cache": true,
+  "source_runtime_database_unchanged": true,
+  "commands_all_exit_zero": true,
+  "browser_visual_verification": "separately recorded, not implied by this script"
+}

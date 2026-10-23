@@ -1,0 +1,12 @@
+{
+  "scope": "precommit safety snapshot; later Git action is separately reported",
+  "candidate_file_count_excluding_manifest": 105,
+  "findings": [],
+  "runtime_database_and_sessions_excluded": true,
+  "teacher_original_sources_excluded": true,
+  "raw_dialogue_export": "MISSING",
+  "user_recorded_video": "MISSING",
+  "final_archive_created": false,
+  "latest_pytest": "72 passed in 152.16s",
+  "remote_history_confirmed_fast_forward": true
+}

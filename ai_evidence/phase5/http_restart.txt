@@ -1,0 +1,3 @@
+Phase 4 filters, scoped statistics, local assets and restart passed
+{"workflow": "passed", "atomic_fields": "passed", "private_rejections": [404, 404], "illegal_transition": 409, "duplicate_review": 409, "restart_new_process": true, "restart_all_fields_equal": true, "rating": 5}
+Phase 3 real HTTP and process restart passed

@@ -1,0 +1,25 @@
+{
+  "agent_browser_test": true,
+  "user_manual_acceptance": false,
+  "complete_web_workflow": "PASS",
+  "filter_and_clear": "PASS",
+  "empty_results": "PASS",
+  "desktop_chart_render": "PASS",
+  "requested_desktop": {
+    "width": 1366,
+    "height": 1000
+  },
+  "requested_mobile": {
+    "width": 390,
+    "height": 844
+  },
+  "mobile_content_and_page_width": 375,
+  "long_description_wrap": "PASS",
+  "student_b_private_detail_404": "PASS",
+  "student_b_statistics_zero": "PASS",
+  "browser_relogin_after_real_server_restart": "PASS",
+  "external_network_disconnected_reload": "NOT_VERIFIED",
+  "actual_mobile_device_touch": "NOT_VERIFIED",
+  "original_dialogue_export": "MISSING",
+  "user_recorded_video": "MISSING"
+}

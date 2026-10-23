@@ -8,6 +8,10 @@ htmlcov/
 instance/
 *.sqlite3
 *.db
+*.sqlite
+*.sqlite3-*
+*.sqlite-*
+*.db-*
 ai_evidence/**/runtime-*.log
 
 # Course source package and extracted copies are local reference material.
@@ -16,6 +20,8 @@ ai_evidence/phase0/
 
 # Raw conversation exports can contain personal information.
 ai_evidence/conversation_export/
+AI对话/
+演示视频/
 
 # Credentials and local signing material.
 *.pem

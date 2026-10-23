@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime
+from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 
-from app.db import connect_database, get_db, utc_now
+from app.db import connect_database, get_db
 from tests.conftest import extract_csrf, login
 from tests.test_tickets import create_via_http
 
@@ -50,10 +53,23 @@ def prepared_ticket(app, state="PENDING", *, confirmed=False):
             (users["student_a"], users["repairer_a"] if assigned else None,
              "3号楼", "406", "照明", "宿舍照明灯无法点亮。", state, t0,
              confirmation or completed or started or assigned or t0,
-             assigned, started, completed, confirmation, utc_now()),
+             assigned, started, completed, confirmation, uuid4().hex),
         )
         db.commit()
         return cursor.lastrowid
+
+
+def test_fixture_request_tokens_remain_unique_when_clock_is_frozen(app, monkeypatch):
+    # A clock tick is not a unique request identifier, including on Windows.
+    frozen = datetime.fromisoformat("2026-01-01T00:00:00+00:00")
+    monkeypatch.setattr("app.db.datetime", SimpleNamespace(now=lambda _tz: frozen))
+    ticket_ids = [prepared_ticket(app) for _ in range(25)]
+    with app.app_context():
+        tokens = [row[0] for row in get_db().execute(
+            "SELECT submission_token FROM repair_tickets"
+        )]
+    assert len(set(ticket_ids)) == 25
+    assert len(tokens) == len(set(tokens)) == 25
 
 
 def test_web_full_workflow_fields_and_buttons(app):

@@ -1,0 +1,12 @@
+Phase5 first clean reproduction attempt (2026-10-23)
+venv: exit 0
+install --no-cache-dir: exit 0
+pip check: exit 0, No broken requirements found.
+init-db: exit 0
+seed-demo: did not consume piped hidden-password input on Windows; waited.
+Agent verified the child process identity and stopped only that waiting seed-demo.
+Observed child exit code: 4294967295
+Observed reproduction script exit code: 1
+No application business rule changed. No original runtime database reset.
+Fix: use existing DORM_REPAIR_DEMO_PASSWORD environment input for unattended seed;
+add bounded subprocess timeouts. Retry uses another fresh directory and venv.
