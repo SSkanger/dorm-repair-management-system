@@ -10,8 +10,16 @@
   <a class="button" href="{{ url_for('tickets.new_ticket') }}">提交新报修</a>
 </section>
 
+{% include 'tickets/filters.html' %}
+{% include 'tickets/statistics.html' %}
 {% if ticket_page.items %}
   {% include 'tickets/table.html' %}
+{% elif ticket_page.total == 0 and (filters.category or filters.status) %}
+  <section class="empty-state">
+    <h2>暂无匹配工单</h2>
+    <p>尝试其他类型或状态，或清空筛选查看全部本人记录。</p>
+    <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">清空筛选</a>
+  </section>
 {% elif ticket_page.total == 0 %}
   <section class="empty-state">
     <span aria-hidden="true">单</span>
@@ -24,7 +32,7 @@
     <span aria-hidden="true">页</span>
     <h2>本页没有工单</h2>
     <p>当前页码超出已有记录范围，可以返回最后一页继续查看。</p>
-    <a class="button" href="?page={{ ticket_page.total_pages }}">前往最后一页</a>
+    <a class="button" href="{{ page_url(ticket_page.total_pages) }}">前往最后一页</a>
   </section>
 {% endif %}
 {% if ticket_page.total %}{% include 'tickets/pagination.html' %}{% endif %}

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import socket
@@ -23,7 +24,7 @@ from app import create_app
 from app.db import connect_database, init_database
 
 
-def main():
+def main(*, verify_statistics=False):
     with tempfile.TemporaryDirectory(prefix="dorm-phase3-") as directory:
         storage = Path(directory)
         database = storage / "verification.sqlite3"
@@ -96,6 +97,15 @@ def main():
             action(session, ticket_id, name, expected=code, **values)
             assert row(ticket_id) == before
 
+        def read_statistics(session, path="/dashboard", params=None):
+            response = session.get(f"{base}{path}", params=params, timeout=5)
+            assert response.status_code == 200
+            match = re.search(r'id="ticket-statistics">(.*?)</script>', response.text, re.S)
+            assert match
+            data = json.loads(match.group(1))
+            assert data["total"] == sum(data["by_category"].values()) == sum(data["by_status"].values())
+            return data
+
         try:
             process = start()
             first_pid = process.pid
@@ -114,11 +124,33 @@ def main():
             )
             assert created.status_code == 303
             ticket_id = int(created.headers["Location"].rsplit("/", 1)[1])
+            if verify_statistics:
+                form = student.get(f"{base}/tickets/new", timeout=5)
+                second = student.post(f"{base}/tickets/new", data={
+                    "csrf_token": hidden(CSRF, form.text, "CSRF"),
+                    "submission_token": hidden(SUBMISSION, form.text, "submission"),
+                    "building": "3号楼", "room_number": "406", "category": "网络",
+                    "description": "真实 HTTP 统计验证，网络端口无法连接。",
+                }, allow_redirects=False, timeout=5)
+                assert second.status_code == 303
+                initial = read_statistics(student, "/tickets")
+                assert initial["total"] == initial["by_status"]["PENDING"] == 2
+                assert initial["by_category"] == {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0}
+                assert read_statistics(sessions["student_b"])["total"] == 0
             action(sessions["repairer_a"], ticket_id, "accept")
+            if verify_statistics:
+                accepted = read_statistics(student)
+                assert accepted["by_status"] == {"PENDING":1,"ACCEPTED":1,"IN_PROGRESS":0,"COMPLETED":0}
+                assert read_statistics(sessions["repairer_b"])["total"] == 1
             reject_without_changes(sessions["repairer_b"], ticket_id, "accept", 404)
             reject_without_changes(sessions["repairer_a"], ticket_id, "complete", 409)
             action(sessions["repairer_a"], ticket_id, "start")
+            if verify_statistics:
+                assert read_statistics(student)["by_status"] == {"PENDING":1,"ACCEPTED":0,"IN_PROGRESS":1,"COMPLETED":0}
             action(sessions["repairer_a"], ticket_id, "complete")
+            if verify_statistics:
+                complete_stats = read_statistics(student)
+                assert complete_stats["by_status"] == {"PENDING":1,"ACCEPTED":0,"IN_PROGRESS":0,"COMPLETED":1}
             reject_without_changes(sessions["student_b"], ticket_id, "confirm", 404)
             reject_without_changes(student, ticket_id, "review", 409, rating="5")
             # Explicit logout/re-login before the student's completion actions.
@@ -127,6 +159,14 @@ def main():
             login(student, base, "student_a", password)
             action(student, ticket_id, "confirm")
             action(student, ticket_id, "review", rating="5", review_text="维修及时，照明已恢复。")
+            if verify_statistics:
+                assert read_statistics(student) == complete_stats
+                filtered = read_statistics(student, "/tickets", {"category":"照明","status":"COMPLETED"})
+                assert filtered["total"] == filtered["by_category"]["照明"] == filtered["by_status"]["COMPLETED"] == 1
+                zero = read_statistics(student, "/dashboard", {"category":"门锁","status":"PENDING"})
+                assert zero["total"] == 0
+                assert student.get(f"{base}/tickets", params={"category":"' OR 1=1 --"}, timeout=5).status_code == 400
+                assert student.get(f"{base}/static/vendor/chart.umd.min.js", timeout=5).status_code == 200
             reject_without_changes(student, ticket_id, "review", 409, rating="1", review_text="覆盖尝试")
             reject_without_changes(sessions["repairer_a"], ticket_id, "start", 409)
             reject_without_changes(sessions["repairer_a"], ticket_id, "accept", 409)
@@ -153,6 +193,10 @@ def main():
             page = restarted.get(f"{base}/tickets/{ticket_id}", timeout=5)
             assert page.status_code == 200 and "5 / 5 分" in page.text and "维修及时，照明已恢复。" in page.text
             assert row(ticket_id) == saved
+            if verify_statistics:
+                assert read_statistics(restarted) == complete_stats
+                assert read_statistics(restarted, "/tickets", {"category":"照明","status":"COMPLETED"}) == filtered
+                print("Phase 4 filters, scoped statistics, local assets and restart passed")
             print(json.dumps({
                 "workflow": "passed", "atomic_fields": "passed", "private_rejections": [404, 404],
                 "illegal_transition": 409, "duplicate_review": 409,

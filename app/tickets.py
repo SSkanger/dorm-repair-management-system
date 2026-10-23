@@ -20,11 +20,11 @@ from wtforms.validators import AnyOf, DataRequired, Length
 
 from .auth import login_required, role_required
 from .queries import (
-    PAGE_SIZE,
     get_visible_ticket,
-    list_repairer_visible_tickets,
-    list_student_tickets,
+    parse_filters,
+    ticket_overview,
 )
+from .constants import STATUS_LABELS
 from .services import (
     CATEGORIES,
     TicketConflictError,
@@ -37,12 +37,6 @@ from .services import (
 
 
 bp = Blueprint("tickets", __name__)
-STATUS_LABELS = {
-    "PENDING": "待处理",
-    "ACCEPTED": "已接单",
-    "IN_PROGRESS": "维修中",
-    "COMPLETED": "已完成",
-}
 ALLOWED_CREATE_FIELDS = {
     "csrf_token",
     "submission_token",
@@ -115,16 +109,15 @@ def _valid_session_token(token: str) -> bool:
     return bool(token) and token in session.get(SESSION_TOKEN_KEY, [])
 
 
-def _parse_page() -> int:
-    if set(request.args) - {"page"} or len(request.args.getlist("page")) > 1:
-        abort(400)
-    raw_page = request.args.get("page", "1")
-    if not raw_page.isascii() or not raw_page.isdigit():
-        abort(400)
-    page = int(raw_page)
-    if page < 1 or page > (2**63 - 1) // PAGE_SIZE:
-        abort(400)
-    return page
+def render_ticket_overview(template, *, include_items=True):
+    filters = parse_filters(request.args)
+    page = ticket_overview(g.user["id"], g.user["role"], filters, include_items=include_items)
+    list_endpoint = "tickets.ticket_list" if g.user["role"] == "student" else "tickets.work_queue"
+    return render_template(
+        template, ticket_page=page, filters=filters, categories=CATEGORIES,
+        status_labels=STATUS_LABELS, list_endpoint=list_endpoint,
+        page_url=lambda number: url_for(request.endpoint, **filters.params(), page=number),
+    )
 
 
 @bp.route("/tickets/new", methods=("GET", "POST"))
@@ -169,15 +162,13 @@ def new_ticket():
 @bp.get("/tickets")
 @role_required("student")
 def ticket_list():
-    page = list_student_tickets(g.user["id"], _parse_page())
-    return render_template("tickets/list.html", ticket_page=page)
+    return render_ticket_overview("tickets/list.html")
 
 
 @bp.get("/work-queue")
 @role_required("repairer")
 def work_queue():
-    page = list_repairer_visible_tickets(g.user["id"], _parse_page())
-    return render_template("tickets/work_queue.html", ticket_page=page)
+    return render_ticket_overview("tickets/work_queue.html")
 
 
 @bp.get("/tickets/<int:ticket_id>")

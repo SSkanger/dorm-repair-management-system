@@ -5,9 +5,7 @@ from dataclasses import dataclass
 
 from .db import get_db, utc_now
 from .queries import get_visible_ticket
-
-
-CATEGORIES = ("照明", "水管", "门锁", "网络", "其他")
+from .constants import CATEGORIES
 
 
 class TicketConflictError(RuntimeError):

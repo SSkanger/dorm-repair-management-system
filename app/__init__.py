@@ -77,12 +77,18 @@ def create_app(test_config: dict | None = None) -> Flask:
     server_session.init_app(app)
     csrf.init_app(app)
 
-    from . import auth, db, pages, tickets
+    from . import auth, db, pages, tickets, dashboard
+    from .queries import QueryInputError
 
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(pages.bp)
     app.register_blueprint(tickets.bp)
+    app.register_blueprint(dashboard.bp)
+
+    @app.errorhandler(QueryInputError)
+    def handle_query_error(error):
+        return render_template("error.html", code=400, title="筛选条件不正确", message=str(error)), 400
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(error: CSRFError):

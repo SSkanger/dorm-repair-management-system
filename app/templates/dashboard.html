@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}工单统计 · 宿舍报修管理系统{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">{{ '我的报修统计' if g.user['role'] == 'student' else '维修工作范围统计' }}</p>
+  <h1>工单统计</h1>
+  <p class="lead">按故障类型与当前状态查看实际工单数量。选择筛选条件后，两张图和数字表使用相同范围。</p>
+</section>
+{% include 'tickets/filters.html' %}
+{% include 'tickets/statistics.html' %}
+{% endblock %}

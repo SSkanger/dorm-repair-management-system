@@ -13,6 +13,7 @@
       <a href="{{ url_for('pages.index') }}">首页</a>
       {% if g.user %}
         <a href="{{ url_for('pages.portal') }}">我的入口</a>
+        <a href="{{ url_for('dashboard.index') }}">工单统计</a>
         {% if g.user['role'] == 'student' %}
           <a href="{{ url_for('tickets.ticket_list') }}">我的报修</a>
           <a href="{{ url_for('tickets.new_ticket') }}">提交报修</a>

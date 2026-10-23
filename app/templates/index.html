@@ -5,7 +5,7 @@
   <div>
     <p class="eyebrow">企业级 AI 软件设计与开发 · 第 8 题</p>
     <h1>让宿舍维修流程清晰、可靠、可追踪</h1>
-    <p class="lead">当前已完成项目基础、数据库与身份认证。报修及维修业务将在后续经审核的阶段实现。</p>
+    <p class="lead">提交宿舍报修，跟踪维修进度，确认与评价处理结果。按故障类型和状态查找工单，查看本人授权范围内的真实统计。</p>
     {% if g.user %}
       <a class="button" href="{{ url_for('pages.portal') }}">进入我的入口</a>
     {% else %}
@@ -14,20 +14,20 @@
   </div>
   <aside class="status-card">
     <span class="status-dot"></span>
-    <strong>基础服务已就绪</strong>
-    <p>服务端会话、角色身份和 SQLite 数据基础已启用。</p>
+    <strong>报修与维修闭环</strong>
+    <p>学生提交 → 维修接单 → 开始与完成维修 → 学生确认及评价。</p>
   </aside>
 </section>
 <section class="feature-grid" aria-label="系统角色">
   <article class="card">
     <span class="icon" aria-hidden="true">学</span>
     <h2>学生端</h2>
-    <p>身份入口已建立。报修提交、查询和评价尚未在本阶段开放。</p>
+    <p>提交真实报修，查看本人列表与详情，确认维修完成后评价，并按类型、状态筛选和查看统计。</p>
   </article>
   <article class="card">
     <span class="icon" aria-hidden="true">修</span>
     <h2>维修端</h2>
-    <p>身份入口已建立。接单和状态更新尚未在本阶段开放。</p>
+    <p>查看待接工单及本人负责工单，接单并按序推进维修；通过筛选和统计了解当前工作范围。</p>
   </article>
 </section>
 {% endblock %}

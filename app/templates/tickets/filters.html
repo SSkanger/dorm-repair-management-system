@@ -1,0 +1,23 @@
+<form class="filter-bar" method="get" action="{{ url_for(request.endpoint) }}" aria-label="工单筛选">
+  <div class="field">
+    <label for="category">故障类型</label>
+    <select id="category" name="category">
+      <option value="">全部类型</option>
+      {% for category in categories %}<option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="status">工单状态</label>
+    <select id="status" name="status">
+      <option value="">全部状态</option>
+      {% for value, label in status_labels.items() %}<option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="button" type="submit">应用筛选</button>
+  <a class="button secondary" href="{{ url_for(request.endpoint) }}">清空筛选</a>
+  {% if request.endpoint == 'dashboard.index' %}
+    <a href="{{ url_for(list_endpoint, **filters.params()) }}">查看匹配工单</a>
+  {% else %}
+    <a href="{{ url_for('dashboard.index', **filters.params()) }}">查看统计</a>
+  {% endif %}
+</form>

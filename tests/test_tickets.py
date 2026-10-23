@@ -274,9 +274,12 @@ def test_pagination_is_stable_without_missing_or_duplicate_rows(app, client):
         "/tickets?page=x",
         "/tickets?page=999999999999999999999999999999999999",
         "/tickets?page=1&page=2",
-        "/tickets?status=PENDING",
     ):
         assert client.get(url).status_code == 400
+
+    # Phase 4 explicitly authorizes state filters; the former Phase 2-only
+    # rejection contract is replaced by the approved feature requirement.
+    assert client.get("/tickets?status=PENDING").status_code == 200
 
     assert client.get("/tickets/999999999999999999999999999999999999").status_code == 404
 
