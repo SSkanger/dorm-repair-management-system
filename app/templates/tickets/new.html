@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}提交报修 · 宿舍报修管理系统{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading">
+  <p class="eyebrow">学生报修</p>
+  <h1>提交新的宿舍报修</h1>
+  <p class="lead">请填写真实位置和故障情况。提交成功后可在“我的报修”中持续查看。</p>
+</section>
+
+<form class="form-card ticket-form" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  {% if conflict %}<div class="alert alert-danger" role="alert">{{ conflict }}</div>{% endif %}
+  {% if storage_error %}<div class="alert alert-danger" role="alert">{{ storage_error }}</div>{% endif %}
+  {% for error in form.submission_token.errors %}<p class="field-error form-error">{{ error }}</p>{% endfor %}
+
+  <div class="field-grid">
+    <div class="field">
+      {{ form.building.label }}
+      {{ form.building(autocomplete='address-level3', maxlength=30, placeholder='例如：3号楼') }}
+      {% for error in form.building.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      {{ form.room_number.label }}
+      {{ form.room_number(autocomplete='address-line2', maxlength=20, placeholder='例如：406') }}
+      {% for error in form.room_number.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+  </div>
+
+  <div class="field">
+    {{ form.category.label }}
+    {{ form.category() }}
+    {% for error in form.category.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="field">
+    {{ form.description.label }}
+    {{ form.description(rows=7, maxlength=1000, placeholder='请用 5–1000 个字符描述故障现象和已尝试的处理方法。') }}
+    <p class="field-help">至少 5 个字符，最多 1000 个字符。</p>
+    {% for error in form.description.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-actions">
+    {{ form.submit(class_='button') }}
+    <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">返回列表</a>
+  </div>
+</form>
+{% endblock %}
+

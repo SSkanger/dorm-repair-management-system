@@ -1,0 +1,8 @@
+{% if ticket_page.total_pages > 1 %}
+<nav class="pagination" aria-label="工单分页">
+  {% if ticket_page.has_previous %}<a class="button secondary" href="?page={{ ticket_page.page - 1 }}">上一页</a>{% endif %}
+  <span>第 {{ ticket_page.page }} / {{ ticket_page.total_pages }} 页</span>
+  {% if ticket_page.has_next %}<a class="button secondary" href="?page={{ ticket_page.page + 1 }}">下一页</a>{% endif %}
+</nav>
+{% endif %}
+

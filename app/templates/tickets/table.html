@@ -1,0 +1,20 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>编号</th><th>故障类型</th><th>宿舍位置</th><th>状态</th><th>创建时间</th><th><span class="sr-only">操作</span></th></tr>
+    </thead>
+    <tbody>
+      {% for ticket in ticket_page.items %}
+        <tr>
+          <td>#{{ ticket['id'] }}</td>
+          <td>{{ ticket['category'] }}</td>
+          <td>{{ ticket['building'] }} · {{ ticket['room_number'] }}</td>
+          <td><span class="status status-{{ ticket['status']|lower }}">{{ {'PENDING':'待处理','ACCEPTED':'已接单','IN_PROGRESS':'维修中','COMPLETED':'已完成'}[ticket['status']] }}</span></td>
+          <td><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at'] }}</time></td>
+          <td><a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket['id']) }}">查看详情</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+

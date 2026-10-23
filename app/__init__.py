@@ -77,11 +77,12 @@ def create_app(test_config: dict | None = None) -> Flask:
     server_session.init_app(app)
     csrf.init_app(app)
 
-    from . import auth, db, pages
+    from . import auth, db, pages, tickets
 
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(pages.bp)
+    app.register_blueprint(tickets.bp)
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(error: CSRFError):
@@ -94,6 +95,8 @@ def create_app(test_config: dict | None = None) -> Flask:
     @app.errorhandler(403)
     @app.errorhandler(404)
     @app.errorhandler(405)
+    @app.errorhandler(409)
+    @app.errorhandler(503)
     def handle_http_error(error):
         descriptions = {
             400: "请求内容不正确，请检查后重试。",
@@ -101,6 +104,8 @@ def create_app(test_config: dict | None = None) -> Flask:
             403: "当前账号没有执行此操作的权限。",
             404: "未找到请求的页面或资源。",
             405: "该页面不支持当前请求方式。",
+            409: "请求与当前业务状态冲突，请刷新页面后重试。",
+            503: "服务暂时不可用，请稍后重试。",
         }
         return render_template(
             "error.html",

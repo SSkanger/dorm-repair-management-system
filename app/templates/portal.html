@@ -6,10 +6,28 @@
   <h1>{{ role_title }}</h1>
   <p class="lead">你好，{{ g.user['display_name'] }}。当前登录账号为 <strong>{{ g.user['username'] }}</strong>。</p>
 </section>
-<section class="empty-state">
-  <span aria-hidden="true">✓</span>
-  <h2>身份与权限基础已生效</h2>
-  <p>Phase 1 不展示工单或统计数据。后续功能将在对应阶段通过审核后开放。</p>
-</section>
+{% if g.user['role'] == 'student' %}
+  <section class="action-grid">
+    <article class="card">
+      <div class="icon" aria-hidden="true">＋</div>
+      <h2>提交报修</h2>
+      <p>填写宿舍位置、故障类型和具体描述，提交后可立即查看工单。</p>
+      <a class="button" href="{{ url_for('tickets.new_ticket') }}">新建报修</a>
+    </article>
+    <article class="card">
+      <div class="icon" aria-hidden="true">单</div>
+      <h2>我的报修</h2>
+      <p>查看你提交的工单、当前状态和完整详情。</p>
+      <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">查看列表</a>
+    </article>
+  </section>
+{% else %}
+  <section class="card">
+    <div class="icon" aria-hidden="true">修</div>
+    <h2>维修工单</h2>
+    <p>当前阶段提供待处理工单和本人负责工单的只读查看。接单与状态操作将在 Phase 3 实现。</p>
+    <a class="button" href="{{ url_for('tickets.work_queue') }}">查看工单</a>
+  </section>
+{% endif %}
 {% endblock %}
 

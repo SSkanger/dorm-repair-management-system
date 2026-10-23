@@ -13,6 +13,12 @@
       <a href="{{ url_for('pages.index') }}">首页</a>
       {% if g.user %}
         <a href="{{ url_for('pages.portal') }}">我的入口</a>
+        {% if g.user['role'] == 'student' %}
+          <a href="{{ url_for('tickets.ticket_list') }}">我的报修</a>
+          <a href="{{ url_for('tickets.new_ticket') }}">提交报修</a>
+        {% else %}
+          <a href="{{ url_for('tickets.work_queue') }}">维修工单</a>
+        {% endif %}
         <span class="identity">{{ g.user['display_name'] }} · {{ '学生' if g.user['role'] == 'student' else '维修人员' }}</span>
         <form class="inline-form" action="{{ url_for('auth.logout') }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -32,7 +38,7 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer>课程综合实践 · Phase 1 基础版本</footer>
+  <footer>课程综合实践 · Phase 2 学生报修版本</footer>
 </body>
 </html>
 

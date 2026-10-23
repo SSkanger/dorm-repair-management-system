@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}工单 #{{ ticket['id'] }} · 宿舍报修管理系统{% endblock %}
+{% block content %}
+<section class="page-heading heading-actions">
+  <div>
+    <p class="eyebrow">报修工单 #{{ ticket['id'] }}</p>
+    <h1>{{ ticket['category'] }}故障</h1>
+    <p class="lead">{{ ticket['building'] }} · {{ ticket['room_number'] }}</p>
+  </div>
+  <span class="status status-{{ ticket['status']|lower }} large-status">{{ status_label }}</span>
+</section>
+
+<article class="detail-card">
+  <dl class="detail-grid">
+    <div><dt>工单编号</dt><dd>#{{ ticket['id'] }}</dd></div>
+    <div><dt>故障类型</dt><dd>{{ ticket['category'] }}</dd></div>
+    <div><dt>楼栋</dt><dd>{{ ticket['building'] }}</dd></div>
+    <div><dt>宿舍号</dt><dd>{{ ticket['room_number'] }}</dd></div>
+    <div><dt>当前状态</dt><dd>{{ status_label }}</dd></div>
+    <div><dt>创建时间</dt><dd><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at'] }}</time></dd></div>
+  </dl>
+  <section class="description-block">
+    <h2>故障描述</h2>
+    <p>{{ ticket['description'] }}</p>
+  </section>
+  {% if ticket['assignee_id'] %}
+    <p class="field-help">该工单已有维修负责人。为保护账号信息，详情页仅展示处理状态。</p>
+  {% else %}
+    <p class="field-help">当前尚无维修负责人。</p>
+  {% endif %}
+</article>
+
+<div class="form-actions detail-actions">
+  {% if g.user['role'] == 'student' %}
+    <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">返回我的报修</a>
+  {% else %}
+    <a class="button secondary" href="{{ url_for('tickets.work_queue') }}">返回维修工单</a>
+  {% endif %}
+</div>
+{% endblock %}
+
