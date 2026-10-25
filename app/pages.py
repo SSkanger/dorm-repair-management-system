@@ -6,6 +6,7 @@ from flask import Blueprint, abort, g, jsonify, render_template
 
 from .auth import login_required, role_required
 from .db import get_db, verify_schema
+from .queries import TicketFilters, ticket_overview
 
 
 bp = Blueprint("pages", __name__)
@@ -31,20 +32,25 @@ def health():
 @login_required
 def portal():
     if g.user["role"] == "student":
-        return render_template("portal.html", role_title="学生入口")
+        return _render_portal("学生入口")
     if g.user["role"] == "repairer":
-        return render_template("portal.html", role_title="维修人员入口")
+        return _render_portal("维修人员入口")
     abort(403)
+
+
+def _render_portal(role_title):
+    overview = ticket_overview(g.user["id"], g.user["role"], TicketFilters())
+    return render_template("portal.html", role_title=role_title, overview=overview)
 
 
 @bp.get("/student/portal")
 @role_required("student")
 def student_portal():
-    return render_template("portal.html", role_title="学生入口")
+    return _render_portal("学生入口")
 
 
 @bp.get("/repairer/portal")
 @role_required("repairer")
 def repairer_portal():
-    return render_template("portal.html", role_title="维修人员入口")
+    return _render_portal("维修人员入口")
 

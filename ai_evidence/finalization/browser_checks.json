@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-26",
+  "method": "actual agent browser actions and saved screenshots; summary, not a raw browser transcript",
+  "isolated_database": true,
+  "other_input_expands_and_focuses": "PASS",
+  "other_blank_rejected_and_valid_fields_retained": "PASS",
+  "other_saved_and_displayed": "PASS",
+  "switch_to_air_conditioning_hides_and_disables_other": "PASS",
+  "real_browser_workflow": "create -> accept -> start -> complete -> confirm -> rating 5",
+  "mobile_review_submission_390": "PASS",
+  "mobile_menu_escape_overlay_and_keyboard_loop": "PASS",
+  "screenshots": [
+    "home_1440.jpg",
+    "other_form_1440.jpg",
+    "repairer_overview_1440.jpg",
+    "my_work_1440.jpg",
+    "long_detail_390.jpg",
+    "mobile_menu_390.jpg",
+    "reviewed_detail_390.jpg",
+    "dashboard_390_before.jpg"
+  ],
+  "long_detail_width_checks": [
+    {
+      "viewport_width": 390,
+      "document_width": 375,
+      "overflow": false
+    },
+    {
+      "viewport_width": 768,
+      "document_width": 753,
+      "overflow": false
+    },
+    {
+      "viewport_width": 1366,
+      "document_width": 1351,
+      "overflow": false
+    },
+    {
+      "viewport_width": 1440,
+      "document_width": 1425,
+      "overflow": false
+    }
+  ],
+  "graph_problem_observed": "crowded category labels and apparent intermediate drawing geometry; screenshot retained",
+  "graph_after_fix_visual": "NOT_VERIFIED: local browser disabled in Work settings before recheck",
+  "not_verified": [
+    "post-fix charts",
+    "list statistics expand/collapse rendering",
+    "full browser filtering interactions",
+    "768/1366 visual screenshots",
+    "mobile new-ticket entry",
+    "physical touch device",
+    "offline reload",
+    "teacher or user acceptance"
+  ]
+}

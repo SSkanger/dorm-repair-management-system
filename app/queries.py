@@ -89,9 +89,13 @@ class TicketPage:
         return self.page < self.total_pages
 
 
-def ticket_overview(user_id: int, role: str, filters: TicketFilters, *, include_items=True) -> TicketPage:
+def ticket_overview(user_id: int, role: str, filters: TicketFilters, *, include_items=True, assigned_only=False) -> TicketPage:
     scope, params = visible_scope(user_id, role)
     clauses = [scope]
+    if assigned_only:
+        # Read-only "my work" view always intersects the existing authorization.
+        clauses.append("assignee_id = ?")
+        params += (user_id,)
     for column, value in (("category", filters.category), ("status", filters.status)):
         if value:
             clauses.append(f"{column} = ?")  # column is a trusted constant.
@@ -103,7 +107,7 @@ def ticket_overview(user_id: int, role: str, filters: TicketFilters, *, include_
     try:
         total = db.execute(f"SELECT COUNT(*) FROM repair_tickets WHERE {where}", params).fetchone()[0]
         items = db.execute(
-            "SELECT id, building, room_number, category, status, created_at "
+            "SELECT id, building, room_number, category, status, created_at, category_detail "
             f"FROM repair_tickets WHERE {where} "
             "ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
             params + (PAGE_SIZE, (filters.page - 1) * PAGE_SIZE),
@@ -133,7 +137,7 @@ def list_repairer_visible_tickets(repairer_id: int, page: int) -> TicketPage:
 def get_visible_ticket(ticket_id: int, *, user_id: int, role: str):
     db = get_db()
     columns = (
-        "id, student_id, assignee_id, building, room_number, category, description, "
+        "id, student_id, assignee_id, building, room_number, category, category_detail, description, "
         "status, created_at, updated_at, assigned_at, started_at, completed_at, "
         "confirmed_at, rating, review_text, reviewed_at"
         ", (SELECT u.display_name FROM users AS u WHERE u.id = repair_tickets.assignee_id) "

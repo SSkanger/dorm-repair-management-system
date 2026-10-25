@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'ui/icons.html' import icon %}
 {% block title %}提交报修 · 宿舍报修管理系统{% endblock %}
 {% block content %}
 <section class="page-heading compact-heading">
@@ -7,36 +8,45 @@
   <p class="lead">请填写真实位置和故障情况。提交成功后可在“我的报修”中持续查看。</p>
 </section>
 
+<div class="ticket-form-layout">
 <form class="form-card ticket-form" method="post" novalidate>
   {{ form.hidden_tag() }}
   {% if conflict %}<div class="alert alert-danger" role="alert">{{ conflict }}</div>{% endif %}
   {% if storage_error %}<div class="alert alert-danger" role="alert">{{ storage_error }}</div>{% endif %}
   {% for error in form.submission_token.errors %}<p class="field-error form-error">{{ error }}</p>{% endfor %}
+  <h2 class="form-section-title">{{ icon('location',18) }} 报修信息 <span class="required-note">全部字段为必填</span></h2>
 
   <div class="field-grid">
     <div class="field">
       {{ form.building.label }}
-      {{ form.building(autocomplete='address-level3', maxlength=30, placeholder='例如：3号楼') }}
-      {% for error in form.building.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      {{ form.building(autocomplete='address-level3', maxlength=30, placeholder='例如：3号楼', aria_invalid='true' if form.building.errors else 'false', aria_describedby='building-errors') }}
+      <div id="building-errors">{% for error in form.building.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
     </div>
     <div class="field">
       {{ form.room_number.label }}
-      {{ form.room_number(autocomplete='address-line2', maxlength=20, placeholder='例如：406') }}
-      {% for error in form.room_number.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      {{ form.room_number(autocomplete='address-line2', maxlength=20, placeholder='例如：406', aria_invalid='true' if form.room_number.errors else 'false', aria_describedby='room-errors') }}
+      <div id="room-errors">{% for error in form.room_number.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
     </div>
   </div>
 
   <div class="field">
     {{ form.category.label }}
-    {{ form.category() }}
-    {% for error in form.category.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    {{ form.category(aria_invalid='true' if form.category.errors else 'false', aria_describedby='category-errors') }}
+    <div id="category-errors">{% for error in form.category.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+  </div>
+
+  <div class="field" id="category-detail-field">
+    {{ form.category_detail.label }}
+    {{ form.category_detail(maxlength=50, placeholder='例如：家具损坏、窗帘脱落', aria_invalid='true' if form.category_detail.errors else 'false', aria_describedby='category-detail-help category-detail-errors') }}
+    <p class="field-help" id="category-detail-help">选择“其他”时必填，最多 50 个字符；筛选与统计仍归入“其他”。</p>
+    <div id="category-detail-errors">{% for error in form.category_detail.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
   </div>
 
   <div class="field">
     {{ form.description.label }}
-    {{ form.description(rows=7, maxlength=1000, placeholder='请用 5–1000 个字符描述故障现象和已尝试的处理方法。') }}
-    <p class="field-help">至少 5 个字符，最多 1000 个字符。</p>
-    {% for error in form.description.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    {{ form.description(rows=7, maxlength=1000, placeholder='请用 5–1000 个字符描述故障现象和已尝试的处理方法。', aria_invalid='true' if form.description.errors else 'false', aria_describedby='description-help description-errors') }}
+    <p class="field-help" id="description-help">至少 5 个字符，最多 1000 个字符。</p>
+    <div id="description-errors">{% for error in form.description.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
   </div>
 
   <div class="form-actions">
@@ -44,5 +54,8 @@
     <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">返回列表</a>
   </div>
 </form>
+<aside class="card form-tip"><span class="icon-tile">{{ icon('shield',22) }}</span><h2>怎样描述更清楚？</h2><ul><li>请确认楼栋与宿舍号，便于维修人员找到位置。</li><li>描述故障现象、出现时间和影响范围。</li><li>如有尝试过的处理方法，也可在描述中说明。</li></ul><p class="tip-footer">提交后可在“我的报修”查看状态。请勿重复新建同一故障；网络重传由服务端幂等机制处理。</p></aside>
+</div>
+<script defer src="{{ url_for('static', filename='js/ticket-form.js') }}"></script>
 {% endblock %}
 

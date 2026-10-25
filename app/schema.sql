@@ -23,7 +23,9 @@ CREATE TABLE repair_tickets (
     room_number TEXT NOT NULL
         CHECK (length(trim(room_number)) BETWEEN 1 AND 20),
     category TEXT NOT NULL
-        CHECK (category IN ('照明', '水管', '门锁', '网络', '其他')),
+        CHECK (category IN ('照明', '水管', '门锁', '网络', '本体类', '电类', '电梯类', '道路景观类', '给排水类', '空调类', '开水饮水类', '门窗五金类', '暖气类', '洗浴热水类', '消防设施类', '其他')),
+    category_detail TEXT
+        CHECK (category_detail IS NULL OR (category = '其他' AND length(trim(category_detail)) BETWEEN 1 AND 50)),
     description TEXT NOT NULL
         CHECK (length(trim(description)) BETWEEN 5 AND 1000),
     status TEXT NOT NULL DEFAULT 'PENDING'
@@ -67,6 +69,6 @@ CREATE INDEX idx_tickets_assignee_created
 CREATE INDEX idx_tickets_status_created
     ON repair_tickets (status, created_at DESC, id DESC);
 
-PRAGMA user_version = 1;
+PRAGMA user_version = 2;
 COMMIT;
 

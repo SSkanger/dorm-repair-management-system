@@ -1,3 +1,4 @@
+{% from 'ui/icons.html' import icon %}
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -5,41 +6,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}宿舍报修管理系统{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script defer src="{{ url_for('static', filename='js/ui.js') }}"></script>
 </head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="{{ url_for('pages.index') }}">宿舍报修管理系统</a>
-    <nav aria-label="主导航">
-      <a href="{{ url_for('pages.index') }}">首页</a>
-      {% if g.user %}
-        <a href="{{ url_for('pages.portal') }}">我的入口</a>
-        <a href="{{ url_for('dashboard.index') }}">工单统计</a>
-        {% if g.user['role'] == 'student' %}
-          <a href="{{ url_for('tickets.ticket_list') }}">我的报修</a>
-          <a href="{{ url_for('tickets.new_ticket') }}">提交报修</a>
-        {% else %}
-          <a href="{{ url_for('tickets.work_queue') }}">维修工单</a>
-        {% endif %}
-        <span class="identity">{{ g.user['display_name'] }} · {{ '学生' if g.user['role'] == 'student' else '维修人员' }}</span>
-        <form class="inline-form" action="{{ url_for('auth.logout') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="link-button" type="submit">退出</button>
-        </form>
+<body class="{{ 'app-layout' if g.user else 'public-layout' }}">
+<a class="skip-link" href="#main-content">跳到主要内容</a>
+{% if g.user %}
+  {% set is_student = g.user['role'] == 'student' %}
+  {% set endpoint = request.endpoint or '' %}
+  <aside class="sidebar" id="app-sidebar" aria-label="功能侧边栏">
+    <a class="brand" href="{{ url_for('pages.portal') }}"><span class="brand-mark">{{ icon('building',24) }}</span><span>宿舍报修<span class="brand-subtitle">服务与维修工作台</span></span></a>
+    <div class="sidebar-caption">{{ '学生工作空间' if is_student else '维修工作空间' }}</div>
+    <nav aria-label="主导航" class="sidebar-nav">
+      <a href="{{ url_for('pages.portal') }}" {% if endpoint in ['pages.portal','pages.student_portal','pages.repairer_portal'] %}aria-current="page"{% endif %}>{{ icon('grid') }}<span>工作概览</span></a>
+      {% if is_student %}
+      <a href="{{ url_for('tickets.ticket_list') }}" {% if endpoint == 'tickets.ticket_list' or endpoint == 'tickets.ticket_detail' %}aria-current="page"{% endif %}>{{ icon('ticket') }}<span>我的报修</span></a>
+      <a href="{{ url_for('tickets.new_ticket') }}" {% if endpoint == 'tickets.new_ticket' %}aria-current="page"{% endif %}>{{ icon('plus') }}<span>提交报修</span></a>
       {% else %}
-        <a href="{{ url_for('auth.login') }}">登录</a>
+      <a href="{{ url_for('tickets.work_queue', status='PENDING') }}" {% if endpoint == 'tickets.work_queue' %}aria-current="page"{% endif %}>{{ icon('ticket') }}<span>待接工单</span></a>
+      <a href="{{ url_for('tickets.my_work') }}" {% if endpoint in ['tickets.my_work','tickets.ticket_detail'] %}aria-current="page"{% endif %}>{{ icon('tool') }}<span>我负责的工单</span></a>
       {% endif %}
+      <a href="{{ url_for('dashboard.index') }}" {% if endpoint == 'dashboard.index' %}aria-current="page"{% endif %}>{{ icon('chart') }}<span>工单统计</span></a>
     </nav>
+    <div class="sidebar-bottom">{{ icon('shield') }}<span>身份与工单权限由服务端验证</span></div>
+  </aside>
+  <button class="sidebar-overlay" type="button" aria-label="关闭导航" hidden></button>
+  <div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-location"><button class="icon-button menu-toggle" id="nav-toggle" type="button" aria-label="展开导航" aria-expanded="false" aria-controls="app-sidebar">{{ icon('menu') }}</button><span class="breadcrumb">工作空间 <span>/</span> {{ '学生服务' if is_student else '维修服务' }}</span></div>
+    <div class="user-menu"><span class="avatar">{{ icon('user') }}</span><span class="user-info"><strong>{{ g.user['display_name'] }}</strong><small>{{ g.user['username'] }} · {{ '学生' if is_student else '维修人员' }}</small></span><form action="{{ url_for('auth.logout') }}" method="post" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout-button" type="submit">{{ icon('logout',18) }}<span>退出</span></button></form></div>
   </header>
-
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
-      {% endfor %}
-    {% endwith %}
+{% else %}
+  <header class="public-header"><a class="brand" href="{{ url_for('pages.index') }}"><span class="brand-mark">{{ icon('building',24) }}</span><span>宿舍报修管理系统</span></a><nav aria-label="主导航"><a href="{{ url_for('pages.index') }}">首页</a><a class="button small" href="{{ url_for('auth.login') }}">立即登录 {{ icon('arrow',16) }}</a></nav></header>
+{% endif %}
+  <main class="container" id="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="alert alert-{{ category }}" role="status">{{ icon('check',18) if category == 'success' else icon('shield',18) }}<span>{{ message }}</span></div>{% endfor %}{% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer>课程综合实践 · 宿舍报修管理系统</footer>
+  <footer>宿舍报修管理系统 <span>·</span> 企业级 AI 软件设计与开发 · 第 8 题</footer>
+{% if g.user %}</div>{% endif %}
 </body>
 </html>
-

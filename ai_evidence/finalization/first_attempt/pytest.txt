@@ -1,0 +1,13 @@
+........................................................................ [ 85%]
+............                                                             [100%]
+============================== warnings summary ===============================
+tests/test_category_extension.py: 36 warnings
+tests/test_queries_stats.py: 2 warnings
+tests/test_tickets.py: 52 warnings
+tests/test_ui_overview.py: 2 warnings
+tests/test_workflow.py: 2 warnings
+  <clean-workspace>\.venv\Lib\site-packages\wtforms\fields\core.py:427: DeprecationWarning: Passing SelectField choices as tuples is deprecated and will be removed in wtforms 3.4. Please use SelectChoice instead.
+    return self.field_class(*self.args, **kw)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+84 passed, 94 warnings in 227.45s (0:03:47)

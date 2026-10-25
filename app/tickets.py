@@ -16,7 +16,7 @@ from flask import (
 )
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, SelectField, StringField, SubmitField, TextAreaField
-from wtforms.validators import AnyOf, DataRequired, Length
+from wtforms.validators import AnyOf, DataRequired, Length, ValidationError
 
 from .auth import login_required, role_required
 from .queries import (
@@ -43,6 +43,7 @@ ALLOWED_CREATE_FIELDS = {
     "building",
     "room_number",
     "category",
+    "category_detail",
     "description",
     "submit",
 }
@@ -86,6 +87,16 @@ class TicketForm(FlaskForm):
         ],
         validate_choice=False,
     )
+    category_detail = StringField(
+        "具体报修类型", filters=[_strip],
+        validators=[Length(max=50, message="具体报修类型最多 50 个字符。")],
+    )
+
+    def validate_category_detail(self, field):
+        if self.category.data == "其他" and not field.data:
+            raise ValidationError("选择其他时，请填写具体报修类型。")
+        if self.category.data != "其他" and field.data:
+            raise ValidationError("仅选择其他时可填写具体报修类型。")
     description = TextAreaField(
         "故障描述",
         filters=[_strip],
@@ -111,11 +122,13 @@ def _valid_session_token(token: str) -> bool:
 
 def render_ticket_overview(template, *, include_items=True):
     filters = parse_filters(request.args)
-    page = ticket_overview(g.user["id"], g.user["role"], filters, include_items=include_items)
+    assigned_only = request.endpoint == "tickets.my_work"
+    page = ticket_overview(g.user["id"], g.user["role"], filters, include_items=include_items, assigned_only=assigned_only)
     list_endpoint = "tickets.ticket_list" if g.user["role"] == "student" else "tickets.work_queue"
     return render_template(
         template, ticket_page=page, filters=filters, categories=CATEGORIES,
         status_labels=STATUS_LABELS, list_endpoint=list_endpoint,
+        assigned_only=assigned_only,
         page_url=lambda number: url_for(request.endpoint, **filters.params(), page=number),
     )
 
@@ -143,6 +156,7 @@ def new_ticket():
             form.room_number.data,
             form.category.data,
             form.description.data,
+            category_detail=form.category_detail.data or None,
         )
         try:
             ticket_id, created = create_ticket(
@@ -168,6 +182,12 @@ def ticket_list():
 @bp.get("/work-queue")
 @role_required("repairer")
 def work_queue():
+    return render_ticket_overview("tickets/work_queue.html")
+
+
+@bp.get("/my-work")
+@role_required("repairer")
+def my_work():
     return render_ticket_overview("tickets/work_queue.html")
 
 

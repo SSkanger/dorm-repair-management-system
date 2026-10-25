@@ -1,0 +1,1 @@
+PASS: horizontal 16-category chart, stable final frame, unchanged counts; visual rendering NOT verified by this script.

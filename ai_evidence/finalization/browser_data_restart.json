@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-26",
+  "real_process_restart": true,
+  "all_ticket_fields_unchanged": true,
+  "fresh_logins": true,
+  "custom_type_persisted": true,
+  "rating": 5,
+  "authorized_totals": {
+    "student_a": 2,
+    "student_b": 0,
+    "repairer_a": 2,
+    "repairer_b": 1
+  },
+  "other_student_and_repairer_detail": 404
+}

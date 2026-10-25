@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-26",
+  "target": "configured runtime database",
+  "old_version": 1,
+  "new_version": 2,
+  "command_exit": 0,
+  "users_preserved": true,
+  "original_ticket_fields_preserved": true,
+  "user_count": 4,
+  "ticket_count": 0,
+  "backup_created": true,
+  "backup_files": [
+    "dorm_repair.sqlite3.v1-backup-d5f83bb9102f.sqlite3"
+  ],
+  "integrity_check": "ok",
+  "foreign_key_check": "ok"
+}

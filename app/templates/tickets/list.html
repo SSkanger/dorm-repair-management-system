@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'ui/icons.html' import icon %}
 {% block title %}我的报修 · 宿舍报修管理系统{% endblock %}
 {% block content %}
 <section class="page-heading heading-actions">
@@ -11,7 +12,7 @@
 </section>
 
 {% include 'tickets/filters.html' %}
-{% include 'tickets/statistics.html' %}
+<details class="inline-statistics"><summary>当前匹配 <strong>{{ ticket_page.total }}</strong> 条 · 展开统计分布</summary>{% include 'tickets/statistics.html' %}</details>
 {% if ticket_page.items %}
   {% include 'tickets/table.html' %}
 {% elif ticket_page.total == 0 and (filters.category or filters.status) %}
@@ -22,14 +23,14 @@
   </section>
 {% elif ticket_page.total == 0 %}
   <section class="empty-state">
-    <span aria-hidden="true">单</span>
+    <span class="empty-icon">{{ icon('empty',30) }}</span>
     <h2>还没有报修记录</h2>
     <p>遇到宿舍设施故障时，请创建第一张真实报修工单。</p>
     <a class="button" href="{{ url_for('tickets.new_ticket') }}">提交报修</a>
   </section>
 {% else %}
   <section class="empty-state">
-    <span aria-hidden="true">页</span>
+    <span class="empty-icon">{{ icon('list',30) }}</span>
     <h2>本页没有工单</h2>
     <p>当前页码超出已有记录范围，可以返回最后一页继续查看。</p>
     <a class="button" href="{{ page_url(ticket_page.total_pages) }}">前往最后一页</a>

@@ -4,10 +4,12 @@
 
 Phase0–4已经用户阶段审核；Phase5最终结果见 [验收记录](docs/ACCEPTANCE_RESULTS.md)。原始AI对话、真实视频及人工待验项见 [交付清单](docs/DELIVERY_CHECKLIST.md)，不宣称五类材料已全部齐全。
 
+2026-10-26收尾：默认运行库已备份升级至版本2；全新目录/venv实际84 passed in 218.18s，三套HTTP退出0。新版界面与16类报修扩展的当前测试/待验项以[最新收尾记录](ai_evidence/finalization.md)为准。本人最后需要提供的对话、视频及检查步骤见[最终交接](docs/FINAL_HANDOFF.md)。旧阶段测试数量和截图保留为历史，不冒充最新版视觉验收。
+
 ## 技术栈与环境
 
 - Python 3.10+；本轮实际Python、SQLite及完整包版本保存在 `ai_evidence/phase5/versions.txt`。
-- Flask 3.1.3、Flask-Session 0.8.0、Flask-WTF 1.3.0、CacheLib 0.14.0；SQLite使用标准库sqlite3。
+- Flask 3.1.3、Flask-Session 0.8.0、Flask-WTF 1.3.0、CacheLib 0.14.0、WTForms 3.2.2；SQLite使用标准库sqlite3。
 - Jinja2、自有响应式CSS、本地Chart.js 4.5.1。实际没有使用Bootstrap，无React/Vue构建流程。
 - pytest 8.4.2、requests 2.32.5用于验证。直接依赖按requirements锁定；间接依赖的本轮解析版本另存证据，不宣称已全量锁定。
 
@@ -56,7 +58,18 @@ python -m venv .venv
 5. 原学生重新登录，确认维修完成后提交1–5整数评分和可选短评；评分不能覆盖。
 6. 停止重启服务后重新登录，核对工单、负责人、时间、确认和评分仍在。
 
-楼栋trim后1–30字符，宿舍号1–20字符，描述5–1000字符，短评最多500字符。类型固定为照明、水管、门锁、网络、其他。
+楼栋trim后1–30字符，宿舍号1–20字符，描述5–1000字符，短评最多500字符。类型包括原有照明、水管、门锁、网络，以及本体类、电类、电梯类、道路景观类、给排水类、空调类、开水饮水类、门窗五金类、暖气类、洗浴热水类、消防设施类、其他。选择“其他”后显示文字输入框，具体类型去掉首尾空白后必填1–50字符；列表和详情显示具体文字，筛选和统计统一计入“其他”。
+
+### 已有数据库升级（报修类型扩展）
+
+当前数据库版本为2。若你之前已经运行过系统，请先在原服务终端Ctrl+C停止，再在原来的项目目录和数据库环境配置下执行：
+
+```powershell
+.\.venv\Scripts\python.exe -m flask --app run:app migrate-db
+.\.venv\Scripts\python.exe -m flask --app run:app run --host 127.0.0.1 --port 5001 --no-reload
+```
+
+升级会先生成同目录`.v1-backup-随机标识.sqlite3`备份，再在一个事务中保留原字段和ID、扩展类别约束并增加category_detail字段，核对旧行一致后提交；失败回滚。旧“其他”工单不强制补文字。重复升级不修改数据，未知版本、未知字段或自定义触发器/索引拒绝自动处理。请保管备份，禁止公开上传；不要删除旧数据库，也不需要重新seed。全新安装继续使用init-db，直接创建版本2。
 
 ```text
 PENDING 待处理 → ACCEPTED 已接单 → IN_PROGRESS 维修中 → COMPLETED 已完成
@@ -66,9 +79,13 @@ PENDING 待处理 → ACCEPTED 已接单 → IN_PROGRESS 维修中 → COMPLETED
 
 ## 筛选、统计与页面验收
 
+Phase 4.5已增加侧栏、真实数据工作概览、维修员“我负责的工单”、表单与详情时间线等界面。维修员侧栏“待接工单”仅显示PENDING；`/work-queue`仍支持原有待接及本人负责范围，“我负责的工单”使用只读`/my-work`。本轮80项自动化测试通过；新版界面的浏览器已验范围与人工待验项见 [UI检查清单](docs/UI_MANUAL_CHECKLIST.md) 和 [实际开发记录](ai_evidence/phase4_ui.md)，不以旧版截图代替本轮视觉验收。
+
 列表、维修工作台和`/dashboard`支持类型、状态单条件及AND组合。“应用筛选”回到第一页，分页保留条件，“清空筛选”恢复当前授权范围的全部记录。
 
 故障类型柱状图、状态环形图及数字表来自SQLite全部匹配记录，分页不截断统计。缺失枚举补0；两表合计均等于匹配总数。维修推进后刷新读取最新状态，确认评价不改变COMPLETED分布。Chart.js及MIT许可证在`app/static/vendor/`，无CDN；图表失败时数字表仍可读。
+
+16类采用横向柱状图并自动增加图表高度，状态仍环形图；关闭绘制动画以直接显示最终几何位置。修复后的真实浏览器绘制仍需本人按最新检查清单核验，不能以配置脚本通过替代。
 
 本机需检查桌面和约390px宽度、长描述、筛选切换、空态、图例和触控按钮；断开外网后确认两图仍绘制。实际已验证范围以本轮验收记录为准，不以pytest代替真实视觉检查。
 

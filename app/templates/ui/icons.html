@@ -1,0 +1,24 @@
+{# Project-authored line icons; no icon font or external request. #}
+{% macro icon(name, size=20) -%}
+{% set shapes = {
+ 'building': 'M3 21V7l9-4v18M12 9h9v12M1 21h22M6 9h2M6 13h2M6 17h2M16 13h2M16 17h2',
+ 'grid': 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+ 'ticket': 'M4 4h16v5a3 3 0 0 0 0 6v5H4v-5a3 3 0 0 0 0-6zM14 4v3M14 11v2M14 17v3',
+ 'plus': 'M12 5v14M5 12h14',
+ 'chart': 'M4 3v17h17M8 15v-4M13 15V6M18 15V9',
+ 'tool': 'M14 6a5 5 0 0 0-6 6L3 17a3 3 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-4 2-2-2z',
+ 'clock': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2',
+ 'check': 'M5 12l4 4L19 6',
+ 'arrow': 'M4 12h16M14 6l6 6-6 6',
+ 'user': 'M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M4 21v-2a8 8 0 0 1 16 0v2',
+ 'logout': 'M9 4H4v16h5M10 12h11M17 8l4 4-4 4',
+ 'menu': 'M4 6h16M4 12h16M4 18h16',
+ 'close': 'M6 6l12 12M6 18L18 6',
+ 'shield': 'M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6',
+ 'list': 'M9 6h12M9 12h12M9 18h12M3 6h1M3 12h1M3 18h1',
+ 'location': 'M12 21s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12M12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
+ 'empty': 'M4 4h16v16H4zM8 9h8M8 13h5',
+ 'star': 'M12 3l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z'
+} %}
+<svg class="ui-icon" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="{{ shapes.get(name, shapes['ticket']) }}"/></svg>
+{%- endmacro %}

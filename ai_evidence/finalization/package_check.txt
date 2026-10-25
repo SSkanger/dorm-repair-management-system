@@ -1,0 +1,3 @@
+Candidate archive verified: 173 files; every manifest hash matches.
+Output: instance/delivery/source-docs-candidate.zip
+Raw dialogue/video NOT included; this is not the final five-part submission.

@@ -1,0 +1,95 @@
+START venv
+END venv exit=0
+
+START install
+END install exit=0
+spec-0.22.0 packaging-26.3 pluggy-1.7.0 pygments-2.21.0 pytest-8.4.2 requests-2.32.5 urllib3-2.8.0 werkzeug-3.1.9 wtforms-3.3.1
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProxyError('Cannot connect to proxy.', TimeoutError('_ssl.c:993: The handshake operation timed out'))': /simple/flask/
+  WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProxyError('Cannot connect to proxy.', TimeoutError('_ssl.c:993: The handshake operation timed out'))': /packages/7f/9c/34f6962f9b9e9c71f6e5ed806e0d0ff03c9d1b0b2340088a0cf4bce09b18/flask-3.1.3-py3-none-any.whl.metadata
+
+START pip_check
+END pip_check exit=0
+No broken requirements found.
+
+START versions
+END versions exit=0
+{
+  "python": "3.12.14",
+  "sqlite": "3.53.1",
+  "packages": {
+    "blinker": "1.9.0",
+    "cachelib": "0.14.0",
+    "certifi": "2026.10.23",
+    "charset-normalizer": "3.5.2",
+    "click": "8.5.0",
+    "colorama": "0.4.6",
+    "Flask": "3.1.3",
+    "Flask-Session": "0.8.0",
+    "Flask-WTF": "1.3.0",
+    "idna": "3.20",
+    "iniconfig": "2.3.1",
+    "itsdangerous": "2.2.0",
+    "Jinja2": "3.1.6",
+    "MarkupSafe": "3.0.4",
+    "msgspec": "0.22.0",
+    "packaging": "26.3",
+    "pip": "25.0.1",
+    "pluggy": "1.7.0",
+    "Pygments": "2.21.0",
+    "pytest": "8.4.2",
+    "requests": "2.32.5",
+    "urllib3": "2.8.0",
+    "Werkzeug": "3.1.9",
+    "WTForms": "3.3.1"
+  }
+}
+
+START init
+END init exit=0
+数据库初始化完成（版本 2）。
+
+START seed
+END seed exit=0
+演示账号准备完成；已有匹配账号保持不变。
+
+START init_repeat
+END init_repeat exit=0
+数据库已是最新版本，未修改现有数据。
+
+START seed_repeat
+END seed_repeat exit=0
+演示账号准备完成；已有匹配账号保持不变。
+
+START pytest
+END pytest exit=0
+                                           [100%]
+============================== warnings summary ===============================
+tests/test_category_extension.py: 36 warnings
+tests/test_queries_stats.py: 2 warnings
+tests/test_tickets.py: 52 warnings
+tests/test_ui_overview.py: 2 warnings
+tests/test_workflow.py: 2 warnings
+  <clean-workspace>\.venv\Lib\site-packages\wtforms\fields\core.py:427: DeprecationWarning: Passing SelectField choices as tuples is deprecated and will be removed in wtforms 3.4. Please use SelectChoice instead.
+    return self.field_class(*self.args, **kw)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+84 passed, 94 warnings in 227.45s (0:03:47)
+
+START http_restart
+END http_restart exit=1
+Traceback (most recent call last):
+  File "<clean-workspace>\scripts\phase4_http_smoke.py", line 6, in <module>
+    main(verify_statistics=True)
+  File "<clean-workspace>\scripts\phase3_http_smoke.py", line 138, in main
+    assert initial["by_category"] == {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+Traceback (most recent call last):
+  File "<project-root>\scripts\phase5_reproduce.py", line 110, in <module>
+    main()
+  File "<project-root>\scripts\phase5_reproduce.py", line 95, in main
+    run("http_restart", [str(python), "scripts/phase4_http_smoke.py"])
+  File "<project-root>\scripts\phase5_reproduce.py", line 76, in run
+    raise RuntimeError(f"{label} failed; see sanitized evidence")
+RuntimeError: http_restart failed; see sanitized evidence

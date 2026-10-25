@@ -1,0 +1,116 @@
+{
+  "result": "PASS",
+  "independent_http": true,
+  "database_full_rows_checked": true,
+  "restart_persistence": "PASS",
+  "final_type_counts": {
+    "照明": 1,
+    "网络": 1,
+    "水管": 0,
+    "门锁": 0,
+    "其他": 0
+  },
+  "final_status_counts": {
+    "PENDING": 1,
+    "ACCEPTED": 0,
+    "IN_PROGRESS": 0,
+    "COMPLETED": 1
+  },
+  "rejection_checks": [
+    {
+      "path": "/tickets/new",
+      "rejected": 403,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/new",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/confirm",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/accept",
+      "rejected": 403,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/accept",
+      "rejected": 404,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/accept",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/complete",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/accept",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/start",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/confirm",
+      "rejected": 404,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/confirm",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 400,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 400,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 400,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 400,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 400,
+      "all_rows_unchanged": true
+    },
+    {
+      "path": "/tickets/1/review",
+      "rejected": 409,
+      "all_rows_unchanged": true
+    }
+  ]
+}

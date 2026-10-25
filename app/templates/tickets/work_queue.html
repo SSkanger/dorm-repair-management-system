@@ -1,30 +1,31 @@
 {% extends 'base.html' %}
-{% block title %}维修工单 · 宿舍报修管理系统{% endblock %}
+{% from 'ui/icons.html' import icon %}
+{% block title %}{{ '我负责的工单' if assigned_only else '维修工单' }} · 宿舍报修管理系统{% endblock %}
 {% block content %}
 <section class="page-heading">
   <p class="eyebrow">维修工作台</p>
-  <h1>维修工单</h1>
-  <p class="lead">显示无人接单的待处理工单，以及当前账号负责的工单。接单后可在详情中开始和完成维修。</p>
+  <h1>{{ '我负责的工单' if assigned_only else '维修工单' }}</h1>
+  <p class="lead">{{ '仅显示由你接单负责的工单，包含已接单、维修中和已完成。' if assigned_only else '显示无人接单的待处理工单，以及当前账号负责的工单。接单后可在详情中开始和完成维修。' }}</p>
 </section>
 {% include 'tickets/filters.html' %}
-{% include 'tickets/statistics.html' %}
+<details class="inline-statistics"><summary>当前匹配 <strong>{{ ticket_page.total }}</strong> 条 · 展开统计分布</summary>{% include 'tickets/statistics.html' %}</details>
 {% if ticket_page.items %}
   {% include 'tickets/table.html' %}
 {% elif ticket_page.total == 0 and (filters.category or filters.status) %}
   <section class="empty-state">
     <h2>暂无匹配工单</h2>
     <p>尝试其他类型或状态，或清空筛选查看全部可见工单。</p>
-    <a class="button secondary" href="{{ url_for('tickets.work_queue') }}">清空筛选</a>
+    <a class="button secondary" href="{{ url_for(request.endpoint) }}">清空筛选</a>
   </section>
 {% elif ticket_page.total == 0 %}
   <section class="empty-state">
-    <span aria-hidden="true">✓</span>
+    <span class="empty-icon">{{ icon('empty',30) }}</span>
     <h2>当前没有可见工单</h2>
     <p>新的待处理工单提交后会显示在这里。</p>
   </section>
 {% else %}
   <section class="empty-state">
-    <span aria-hidden="true">页</span>
+    <span class="empty-icon">{{ icon('list',30) }}</span>
     <h2>本页没有工单</h2>
     <p>当前页码超出已有记录范围，可以返回最后一页继续查看。</p>
     <a class="button" href="{{ page_url(ticket_page.total_pages) }}">前往最后一页</a>

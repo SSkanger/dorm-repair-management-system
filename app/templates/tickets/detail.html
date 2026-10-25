@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'ui/icons.html' import icon %}
 {% block title %}工单 #{{ ticket['id'] }} · 宿舍报修管理系统{% endblock %}
 {% block content %}
 <section class="page-heading heading-actions">
@@ -10,10 +11,13 @@
   <span class="status status-{{ ticket['status']|lower }} large-status">{{ status_label }}</span>
 </section>
 
+<div class="detail-layout"><div>
 <article class="detail-card">
+  <h2 class="form-section-title">{{ icon('ticket',18) }} 工单信息</h2>
   <dl class="detail-grid">
     <div><dt>工单编号</dt><dd>#{{ ticket['id'] }}</dd></div>
     <div><dt>故障类型</dt><dd>{{ ticket['category'] }}</dd></div>
+    {% if ticket['category_detail'] %}<div><dt>具体报修类型</dt><dd>{{ ticket['category_detail'] }}</dd></div>{% endif %}
     <div><dt>楼栋</dt><dd>{{ ticket['building'] }}</dd></div>
     <div><dt>宿舍号</dt><dd>{{ ticket['room_number'] }}</dd></div>
     <div><dt>当前状态</dt><dd>{{ status_label }}</dd></div>
@@ -87,6 +91,12 @@
   <p>你的评价已保存，此工单处理流程已完成。</p>
 {% endif %}
 </section>
+
+</div><aside class="card timeline-card" aria-label="工单流程时间线"><h2>处理进度</h2><ol class="timeline">
+{% for field,label in [('created_at','学生提交'),('assigned_at','维修接单'),('started_at','开始维修'),('completed_at','维修完成'),('confirmed_at','学生确认'),('reviewed_at','评价反馈')] %}
+  <li class="{{ 'done' if ticket[field] else '' }}"><span class="timeline-dot">{% if ticket[field] %}{{ icon('check',12) }}{% endif %}</span><div><strong>{{ label }}</strong>{% if ticket[field] %}<time datetime="{{ ticket[field] }}">{{ ticket[field]|local_time }}</time>{% else %}<small>尚未发生</small>{% endif %}</div></li>
+{% endfor %}
+</ol></aside></div>
 
 <div class="form-actions detail-actions">
   {% if g.user['role'] == 'student' %}

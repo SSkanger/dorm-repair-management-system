@@ -1,33 +1,25 @@
 {% extends 'base.html' %}
-{% block title %}{{ role_title }} · 宿舍报修管理系统{% endblock %}
+{% from 'ui/icons.html' import icon %}
+{% block title %}工作概览 · {{ role_title }}{% endblock %}
 {% block content %}
-<section class="page-heading">
-  <p class="eyebrow">身份已验证</p>
-  <h1>{{ role_title }}</h1>
-  <p class="lead">你好，{{ g.user['display_name'] }}。当前登录账号为 <strong>{{ g.user['username'] }}</strong>。</p>
+{% set student = g.user['role'] == 'student' %}
+<section class="page-heading heading-actions">
+  <div><p class="eyebrow">{{ role_title }}</p><h1>工作概览</h1><p class="lead">你好，{{ g.user['display_name'] }}。{{ '在这里跟进你的报修与处理进度。' if student else '查看待接任务，继续推进你负责的维修。' }}</p></div>
+  <a class="button" href="{{ url_for('tickets.new_ticket') if student else url_for('tickets.work_queue',status='PENDING') }}">{{ icon('plus' if student else 'ticket',18) }} {{ '新建报修' if student else '查看待接工单' }}</a>
 </section>
-{% if g.user['role'] == 'student' %}
-  <section class="action-grid">
-    <article class="card">
-      <div class="icon" aria-hidden="true">＋</div>
-      <h2>提交报修</h2>
-      <p>填写宿舍位置、故障类型和具体描述，提交后可立即查看工单。</p>
-      <a class="button" href="{{ url_for('tickets.new_ticket') }}">新建报修</a>
-    </article>
-    <article class="card">
-      <div class="icon" aria-hidden="true">单</div>
-      <h2>我的报修</h2>
-      <p>查看你提交的工单、当前状态和完整详情。</p>
-      <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">查看列表</a>
-    </article>
-  </section>
-{% else %}
-  <section class="card">
-    <div class="icon" aria-hidden="true">修</div>
-    <h2>维修工单</h2>
-    <p>查看待处理工单并接单，或在本人负责的工单详情中推进维修状态。</p>
-    <a class="button" href="{{ url_for('tickets.work_queue') }}">查看工单</a>
-  </section>
-{% endif %}
+<div class="scope-note">{{ icon('shield',16) }} {{ '以下数据仅来自你提交的工单' if student else '以下数据仅含待接工单与本人负责工单；已接单、维修中和已完成均为本人负责' }}<span>截至 {{ overview.snapshot_at|local_time }}</span></div>
+<section class="metric-grid" aria-label="真实工单概况">
+  {% if student %}{% set metrics=[('累计报修',overview.total,'ticket','blue'),('待处理',overview.by_status['PENDING'],'clock','amber'),('维修中',overview.by_status['IN_PROGRESS'],'tool','blue'),('已完成',overview.by_status['COMPLETED'],'check','green')] %}
+  {% else %}{% set metrics=[('待接工单',overview.by_status['PENDING'],'ticket','amber'),('本人已接单',overview.by_status['ACCEPTED'],'clock','blue'),('本人维修中',overview.by_status['IN_PROGRESS'],'tool','blue'),('本人已完成',overview.by_status['COMPLETED'],'check','green')] %}{% endif %}
+  {% for label,number,symbol,color in metrics %}<article class="metric-card {{ color }}"><div><p>{{ label }}</p><strong>{{ number }}</strong><small>条工单</small></div><span class="icon-tile">{{ icon(symbol,22) }}</span></article>{% endfor %}
+</section>
+<section class="card recent-card">
+  <div class="section-heading"><div><h2>{{ '最近报修' if student else '最近可见工单' }}</h2><p>按创建时间倒序展示最近 5 条记录</p></div><a class="text-link" href="{{ url_for('tickets.ticket_list') if student else url_for('tickets.work_queue') }}">查看全部 {{ icon('arrow',16) }}</a></div>
+  {% if overview.items %}
+  <div class="table-wrap borderless"><table class="recent-table"><thead><tr><th>工单编号</th><th>故障 / 位置</th><th>当前状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>
+  {% for ticket in overview.items[:5] %}<tr><td>#{{ ticket['id'] }}</td><td><strong>{{ ticket['category'] }}</strong>{% if ticket['category_detail'] %}<small class="cell-secondary">{{ ticket['category_detail'] }}</small>{% endif %}<small class="cell-secondary">{{ ticket['building'] }} · {{ ticket['room_number'] }}</small></td><td><span class="status status-{{ ticket['status']|lower }}">{{ {'PENDING':'待处理','ACCEPTED':'已接单','IN_PROGRESS':'维修中','COMPLETED':'已完成'}[ticket['status']] }}</span></td><td><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at']|local_time }}</time></td><td><a href="{{ url_for('tickets.ticket_detail',ticket_id=ticket['id']) }}">查看详情</a></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<div class="empty-state inset"><span class="empty-icon">{{ icon('empty',32) }}</span><h3>{{ '还没有报修记录' if student else '暂无可见工单' }}</h3><p>{{ '遇到宿舍设施故障时，从一张真实报修开始。' if student else '新的待接工单会显示在这里。' }}</p>{% if student %}<a class="button small" href="{{ url_for('tickets.new_ticket') }}">提交报修</a>{% endif %}</div>{% endif %}
+</section>
+<div class="overview-bottom"><section class="card"><span class="icon-tile">{{ icon('chart',22) }}</span><div><h2>用数据了解处理进度</h2><p>按故障类型和状态查看授权范围内的工单分布。</p><a href="{{ url_for('dashboard.index') }}">打开工单统计 {{ icon('arrow',16) }}</a></div></section><section class="card"><span class="icon-tile">{{ icon('shield',22) }}</span><div><h2>{{ '提交后，持续跟进' if student else '接单后，按序处理' }}</h2><p>{{ '维修完成后，请检查结果、确认完成并给出评价。' if student else '已接单 → 维修中 → 已完成，处理时间由系统记录。' }}</p><span class="muted">当前账号：{{ g.user['username'] }}</span></div></section></div>
 {% endblock %}
-

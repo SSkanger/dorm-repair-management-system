@@ -135,7 +135,8 @@ def main(*, verify_statistics=False):
                 assert second.status_code == 303
                 initial = read_statistics(student, "/tickets")
                 assert initial["total"] == initial["by_status"]["PENDING"] == 2
-                assert initial["by_category"] == {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0}
+                assert initial["by_category"] == {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0,
+                    **dict.fromkeys(("本体类","电类","电梯类","道路景观类","给排水类","空调类","开水饮水类","门窗五金类","暖气类","洗浴热水类","消防设施类"),0)}
                 assert read_statistics(sessions["student_b"])["total"] == 0
             action(sessions["repairer_a"], ticket_id, "accept")
             if verify_statistics:

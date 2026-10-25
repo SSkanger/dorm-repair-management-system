@@ -64,7 +64,10 @@ def test_student_and_repairer_scope_aggregates_are_private(app, dataset):
         response = client.get(path)
         data = statistics(response)
         assert data["total"] == len(indexes)
-        assert data["by_category"] == categories
+        # User-approved extension: all eleven new categories are explicit zeros
+        # in this legacy fixed dataset; the original five counts stay unchanged.
+        extra_zeroes = dict.fromkeys(("本体类", "电类", "电梯类", "道路景观类", "给排水类", "空调类", "开水饮水类", "门窗五金类", "暖气类", "洗浴热水类", "消防设施类"), 0)
+        assert data["by_category"] == {**categories, **extra_zeroes}
         assert data["by_status"] == statuses
         assert set(ids(response)) == {dataset[i] for i in indexes}
         assert statistics(client.get("/dashboard")) == data

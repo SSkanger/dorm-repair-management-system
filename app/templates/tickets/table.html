@@ -7,12 +7,12 @@
       {% for ticket in ticket_page.items %}
         <tr>
           <td>#{{ ticket['id'] }}</td>
-          <td>{{ ticket['category'] }}</td>
+          <td>{{ ticket['category'] }}{% if ticket['category_detail'] %}<small class="cell-secondary">{{ ticket['category_detail'] }}</small>{% endif %}</td>
           <td>{{ ticket['building'] }} · {{ ticket['room_number'] }}</td>
           <td><span class="status status-{{ ticket['status']|lower }}">{{ {'PENDING':'待处理','ACCEPTED':'已接单','IN_PROGRESS':'维修中','COMPLETED':'已完成'}[ticket['status']] }}</span></td>
           <td><time datetime="{{ ticket['created_at'] }}">{{ ticket['created_at']|local_time }}</time></td>
           <td>
-            <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket['id']) }}">查看详情</a>
+            <a class="table-action" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket['id']) }}">查看详情</a>
             {% if g.user['role'] == 'repairer' and ticket['status'] == 'PENDING' %}
               <form class="queue-action" method="post" action="{{ url_for('tickets.accept_ticket', ticket_id=ticket['id']) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

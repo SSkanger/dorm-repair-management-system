@@ -6,6 +6,7 @@ output and version information are copied back as development evidence.
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 import os
 from pathlib import Path
@@ -29,6 +30,15 @@ def runtime_fingerprints():
 
 
 def main():
+    global EVIDENCE
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--evidence-dir", default="ai_evidence/phase5",
+                        help="Project-relative output folder; use a new folder to preserve prior runs.")
+    args = parser.parse_args()
+    requested = (ROOT / args.evidence_dir).resolve()
+    if not requested.is_relative_to((ROOT / "ai_evidence").resolve()):
+        parser.error("Evidence must be written inside the project's ai_evidence folder")
+    EVIDENCE = requested
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     before = runtime_fingerprints()
     clean = Path(tempfile.mkdtemp(prefix="dorm-phase5-")) / "project"
@@ -84,6 +94,7 @@ def main():
     run("pytest", [str(python), "-m", "pytest", "-q"])
     run("http_restart", [str(python), "scripts/phase4_http_smoke.py"])
     run("http_independent", [str(python), "scripts/phase5_http_acceptance.py"])
+    run("http_categories", [str(python), "scripts/category_http_smoke.py"])
     after = runtime_fingerprints()
     assert before == after, "Source runtime database changed during reproduction"
     (EVIDENCE / "reproduction.json").write_text(json.dumps({

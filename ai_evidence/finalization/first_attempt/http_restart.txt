@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<clean-workspace>\scripts\phase4_http_smoke.py", line 6, in <module>
+    main(verify_statistics=True)
+  File "<clean-workspace>\scripts\phase3_http_smoke.py", line 138, in main
+    assert initial["by_category"] == {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

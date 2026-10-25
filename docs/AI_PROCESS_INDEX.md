@@ -17,6 +17,8 @@
 
 ## 可以解释的真实问题
 
+新增记录：`ai_evidence/phase4_ui.md`记录Tabler风格升级、真实72→80项回归及浏览器受限；`ai_evidence/category_extension.md`记录用户图片类别、其他字段与迁移、84项及HTTP清理错误；`ai_evidence/finalization.md`记录2026-10-26运行库升级、干净环境复现、旧五类HTTP断言漏更新、图表实际视觉问题与最终待验。用户明确授权新类别和必要迁移，未冒称教师规定必须16类；“继续收尾”授权本地版本保存，不等于原始对话或视频已经提供。
+
 1. Phase1首次pytest曾为7 failed、9 passed：CSRF时限传timedelta，实际依赖按秒比较触发TypeError。改为7200整数秒，保留正确CSRF断言并回归。原阶段日志已记录，不能声称本轮再现过该缺陷。
 2. Phase1审查发现测试配置应用前就写默认instance文件，调整配置顺序并增加隔离测试。目标是避免测试触碰正式存储，不靠清空数据库解决。
 3. Phase2审查发现WTForms校验会重建错误列表，业务Token错误应在validate后追加。这是代码审查中发现并处理，不能编成一次未发生的pytest失败。

@@ -1,0 +1,26 @@
+...........................................................F............ [ 90%]
+........                                                                 [100%]
+================================== FAILURES ===================================
+_______ test_owned_view_is_read_only_and_has_role_and_parameter_guards ________
+
+app = <Flask 'app'>, client = <FlaskClient <Flask 'app'>>
+
+    def test_owned_view_is_read_only_and_has_role_and_parameter_guards(app, client):
+        assert client.get("/my-work").status_code == 302
+        assert login(client).status_code == 303
+        assert client.get("/my-work").status_code == 403
+        repairer = app.test_client()
+        assert login(repairer, "repairer_a").status_code == 303
+        assert repairer.get("/my-work?assignee_id=2").status_code == 400
+        assert repairer.get("/my-work?status=CONFIRMED").status_code == 400
+        # CSRF protection still applies before method dispatch.
+>       assert repairer.post("/my-work").status_code == 400
+E       AssertionError: assert 405 == 400
+E        +  where 405 = <WrapperTestResponse streamed [405 METHOD NOT ALLOWED]>.status_code
+E        +    where <WrapperTestResponse streamed [405 METHOD NOT ALLOWED]> = post('/my-work')
+E        +      where post = <FlaskClient <Flask 'app'>>.post
+
+tests\test_ui_overview.py:86: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_ui_overview.py::test_owned_view_is_read_only_and_has_role_and_parameter_guards
+1 failed, 79 passed in 203.82s (0:03:23)

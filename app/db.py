@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import secrets
 import sqlite3
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -11,7 +13,7 @@ from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 REQUIRED_TABLES = {"users", "repair_tickets"}
 DEMO_USERS = (
     ("student_a", "学生甲", "student"),
@@ -67,6 +69,8 @@ def verify_schema(connection: sqlite3.Connection) -> None:
     if not REQUIRED_TABLES.issubset(tables):
         missing = ", ".join(sorted(REQUIRED_TABLES - tables))
         raise DatabaseVersionError(f"数据库结构不完整，缺少表：{missing}。")
+    if "category_detail" not in {row["name"] for row in connection.execute("PRAGMA table_info(repair_tickets)")}:
+        raise DatabaseVersionError("数据库缺少具体报修类型字段，请先备份并执行显式迁移。")
 
 
 def init_database() -> str:
@@ -89,7 +93,71 @@ def init_database() -> str:
     except Exception:
         connection.rollback()
         raise
-    return "数据库初始化完成（版本 1）。"
+    return f"数据库初始化完成（版本 {SCHEMA_VERSION}）。"
+
+
+def migrate_database() -> str:
+    """Explicit v1 -> v2 migration; preserve rows, constraints and a backup."""
+    connection = get_db()
+    version = connection.execute("PRAGMA user_version").fetchone()[0]
+    if version == SCHEMA_VERSION:
+        verify_schema(connection)
+        return "数据库已是最新版本，未修改现有数据。"
+    if version != 1 or _user_tables(connection) != REQUIRED_TABLES:
+        raise DatabaseVersionError("仅支持完整版本1数据库升级；未知结构不会被修改。")
+    # Refuse extensions that would otherwise be silently lost during rebuilding.
+    extras = connection.execute(
+        "SELECT name FROM sqlite_master WHERE tbl_name='repair_tickets' "
+        "AND (type='trigger' OR (type='index' AND sql IS NOT NULL "
+        "AND name NOT IN ('idx_tickets_student_created','idx_tickets_assignee_created',"
+        "'idx_tickets_status_created')))"
+    ).fetchall()
+    if extras:
+        raise DatabaseVersionError("检测到自定义索引或触发器，请人工迁移，未修改数据。")
+    backup_path = Path(str(current_app.config["DATABASE"]) + ".v1-backup-" + secrets.token_hex(6) + ".sqlite3")
+    with closing(sqlite3.connect(backup_path)) as backup:
+        connection.backup(backup)
+    schema = Path(current_app.root_path, "schema.sql").read_text(encoding="utf-8")
+    statements = [part.strip() for part in schema.split(";") if part.strip()]
+    ticket_sql = next(part for part in statements if part.startswith("CREATE TABLE repair_tickets"))
+    indexes = [part for part in statements if part.startswith("CREATE INDEX")]
+    try:
+        connection.execute("BEGIN IMMEDIATE")
+        if connection.execute("PRAGMA user_version").fetchone()[0] != 1:
+            raise DatabaseVersionError("迁移期间版本发生变化，请停止其他服务后重试。")
+        columns = [row["name"] for row in connection.execute("PRAGMA table_info(repair_tickets)")]
+        expected = {"id", "student_id", "assignee_id", "building", "room_number", "category", "description", "status", "created_at", "updated_at", "assigned_at", "started_at", "completed_at", "confirmed_at", "rating", "review_text", "reviewed_at", "submission_token"}
+        if set(columns) != expected:
+            raise DatabaseVersionError("版本1工单字段不匹配，拒绝覆盖未知字段。")
+        fields = ", ".join(columns)  # Validated against the fixed schema above.
+        before = [tuple(row) for row in connection.execute(f"SELECT {fields} FROM repair_tickets ORDER BY id")]
+        connection.execute(ticket_sql.replace("CREATE TABLE repair_tickets", "CREATE TABLE repair_tickets_v2", 1))
+        connection.execute(f"INSERT INTO repair_tickets_v2 ({fields}) SELECT {fields} FROM repair_tickets")
+        after = [tuple(row) for row in connection.execute(f"SELECT {fields} FROM repair_tickets_v2 ORDER BY id")]
+        if after != before:
+            raise DatabaseVersionError("迁移数据核对失败，已取消。")
+        connection.execute("DROP TABLE repair_tickets")
+        connection.execute("ALTER TABLE repair_tickets_v2 RENAME TO repair_tickets")
+        for statement in indexes:
+            connection.execute(statement)
+        if connection.execute("PRAGMA foreign_key_check").fetchall():
+            raise DatabaseVersionError("迁移外键检查失败，已取消。")
+        connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    return f"数据库已升级至版本2；旧工单、账号均保留。备份：{backup_path.name}"
+
+
+@click.command("migrate-db")
+@with_appcontext
+def migrate_db_command() -> None:
+    """Stop the web server before running this explicit migration."""
+    try:
+        click.echo(migrate_database())
+    except (DatabaseVersionError, sqlite3.Error) as error:
+        raise click.ClickException(str(error)) from error
 
 
 @click.command("init-db")
@@ -153,4 +221,5 @@ def init_app(app) -> None:
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(seed_demo_command)
+    app.cli.add_command(migrate_db_command)
 

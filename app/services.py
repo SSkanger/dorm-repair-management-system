@@ -123,23 +123,26 @@ class TicketInput:
     room_number: str
     category: str
     description: str
+    category_detail: str | None = None
 
     @classmethod
     def normalized(
-        cls, building: str, room_number: str, category: str, description: str
+        cls, building: str, room_number: str, category: str, description: str,
+        *, category_detail: str | None = None,
     ) -> "TicketInput":
         return cls(
             building=building.strip(),
             room_number=room_number.strip(),
             category=category.strip(),
             description=description.strip(),
+            category_detail=category_detail.strip() if category_detail else None,
         )
 
 
 def _same_content(row: sqlite3.Row, data: TicketInput) -> bool:
     return all(
         row[field] == getattr(data, field)
-        for field in ("building", "room_number", "category", "description")
+        for field in ("building", "room_number", "category", "description", "category_detail")
     )
 
 
@@ -157,7 +160,7 @@ def create_ticket(
     try:
         db.execute("BEGIN IMMEDIATE")
         existing = db.execute(
-            "SELECT id, building, room_number, category, description "
+            "SELECT id, building, room_number, category, description, category_detail "
             "FROM repair_tickets WHERE student_id = ? AND submission_token = ?",
             (student_id, submission_token),
         ).fetchone()
@@ -173,8 +176,8 @@ def create_ticket(
         cursor = db.execute(
             "INSERT INTO repair_tickets "
             "(student_id, building, room_number, category, description, status, "
-            "created_at, updated_at, submission_token) "
-            "VALUES (?, ?, ?, ?, ?, 'PENDING', ?, ?, ?)",
+            "created_at, updated_at, submission_token, category_detail) "
+            "VALUES (?, ?, ?, ?, ?, 'PENDING', ?, ?, ?, ?)",
             (
                 student_id,
                 data.building,
@@ -184,6 +187,7 @@ def create_ticket(
                 now,
                 now,
                 submission_token,
+                data.category_detail,
             ),
         )
         ticket_id = cursor.lastrowid

@@ -128,7 +128,9 @@ def main():
                 rejected(student,"/tickets/new",409,**{**data,"description":"同一标识的不同描述应当拒绝。"})
                 create(student,"网络","独立验收：网络接口无法连接。")
                 assert users["student_b"].get(base+path,timeout=10).status_code == 404
-                assert stats(student)["by_category"] == {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0}
+                expected_types = {"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0,
+                    **dict.fromkeys(("本体类","电类","电梯类","道路景观类","给排水类","空调类","开水饮水类","门窗五金类","暖气类","洗浴热水类","消防设施类"),0)}
+                assert stats(student)["by_category"] == expected_types
                 assert stats(users["student_b"])["total"] == 0
                 rejected(student,path+"/confirm",409)
                 rejected(student,path+"/review",409,rating="5")
@@ -177,7 +179,7 @@ def main():
                 assert restarted.get(base+"/portal",allow_redirects=False,timeout=10).status_code == 302
                 print(json.dumps({"result":"PASS","independent_http":True,
                     "database_full_rows_checked":True,"restart_persistence":"PASS",
-                    "final_type_counts":{"照明":1,"网络":1,"水管":0,"门锁":0,"其他":0},
+                    "final_type_counts":expected_types,
                     "final_status_counts":expected_states,"rejection_checks":checks},ensure_ascii=False,indent=2))
             finally:
                 if process is not None and process.poll() is None:
