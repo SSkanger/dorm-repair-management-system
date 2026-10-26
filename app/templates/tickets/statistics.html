@@ -1,14 +1,13 @@
 <section class="statistics" aria-labelledby="statistics-title">
   <div class="statistics-heading">
     <h2 id="statistics-title">当前匹配工单 <strong>{{ ticket_page.total }}</strong> 条</h2>
-    <p class="field-help">{{ '仅统计我的报修' if g.user['role'] == 'student' else ('仅统计我负责的工单' if assigned_only else '仅统计待接工单及我负责的工单') }} · 全部匹配结果，含所有分页。<br>截至本次刷新：{{ ticket_page.snapshot_at|local_time }}（北京时间）</p>
   </div>
-  {% if not ticket_page.total %}<p class="alert" role="status">暂无匹配工单，以下各项计数均为 0。</p>{% endif %}
-  <p id="chart-feedback" class="field-help">图表未加载时，可使用下方数字核对。</p>
+  {% if not ticket_page.total %}<p class="alert" role="status">暂无匹配工单</p>{% endif %}
+  <p id="chart-feedback" class="field-help" role="status" hidden></p>
   <div class="chart-grid">
     <article class="card chart-card">
       <h3>故障类型分布</h3>
-      {% if ticket_page.total %}<div class="chart-container"><canvas id="category-chart" role="img" aria-label="按故障类型统计工单数量，准确数值见下表"></canvas></div>{% else %}<div class="chart-empty">暂无故障类型数据</div>{% endif %}
+      {% if ticket_page.total %}<div class="chart-container"><canvas id="category-chart" role="img" aria-label="按故障类型统计工单数量，准确数值见下表"></canvas></div>{% else %}<div class="chart-empty">暂无数据</div>{% endif %}
       <table class="statistics-table">
         <caption class="sr-only">故障类型数量</caption>
         <thead><tr><th scope="col">类型</th><th scope="col">工单数量</th></tr></thead>
@@ -18,7 +17,7 @@
     </article>
     <article class="card chart-card">
       <h3>工单状态分布</h3>
-      {% if ticket_page.total %}<div class="chart-container"><canvas id="status-chart" role="img" aria-label="按工单状态统计数量，准确数值见下表"></canvas></div>{% else %}<div class="chart-empty">暂无状态分布数据</div>{% endif %}
+      {% if ticket_page.total %}<div class="chart-container"><canvas id="status-chart" role="img" aria-label="按工单状态统计数量，准确数值见下表"></canvas></div>{% else %}<div class="chart-empty">暂无数据</div>{% endif %}
       <table class="statistics-table">
         <caption class="sr-only">工单状态数量</caption>
         <thead><tr><th scope="col">状态</th><th scope="col">工单数量</th></tr></thead>

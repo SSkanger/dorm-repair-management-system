@@ -5,11 +5,11 @@
   if (!source) return;
   const counts = JSON.parse(source.textContent);
   if (!counts.total) {
-    feedback.textContent = "暂无匹配数据，图表留空；下方保留完整零计数。";
     return;
   }
   if (typeof Chart === "undefined") {
-    feedback.textContent = "图表暂时无法加载，请使用下方数字表核对统计。";
+    feedback.hidden = false;
+    feedback.textContent = "图表加载失败，请查看下方数据。";
     return;
   }
   const options = {
@@ -61,8 +61,8 @@
       plugins: [centerTotal],
       options: {...options, cutout: "74%"},
     });
-    feedback.textContent = "图表与下方数字表使用相同的实时查询结果。";
   } catch (_error) {
-    feedback.textContent = "图表暂时无法绘制，请使用下方数字表核对统计。";
+    feedback.hidden = false;
+    feedback.textContent = "图表加载失败，请查看下方数据。";
   }
 })();

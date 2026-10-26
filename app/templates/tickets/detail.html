@@ -57,14 +57,12 @@
     </form>
   {% else %}
     <h2>维修已完成</h2>
-    <p>维修状态已归档，可查看学生确认及评价结果。</p>
   {% endif %}
 {% elif ticket['status'] != 'COMPLETED' %}
   <h2>等待维修处理</h2>
-  <p>维修人员完成处理后，你可以确认完成并提交评价。</p>
 {% elif not ticket['confirmed_at'] %}
   <h2>维修已完成 · 待确认</h2>
-  <p>请检查维修结果，确认后可以评价。</p>
+  <p>请检查维修结果后确认。</p>
   <form method="post" action="{{ url_for('tickets.confirm_ticket', ticket_id=ticket['id']) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="button" type="submit">确认完成</button>
@@ -88,7 +86,6 @@
   </form>
 {% else %}
   <h2>已评价</h2>
-  <p>你的评价已保存，此工单处理流程已完成。</p>
 {% endif %}
 </section>
 

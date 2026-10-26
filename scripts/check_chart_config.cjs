@@ -8,7 +8,7 @@ const counts = {total:2, category_order:labels,
   status_order:['PENDING','ACCEPTED','IN_PROGRESS','COMPLETED'],
   by_status:{PENDING:1,ACCEPTED:0,IN_PROGRESS:0,COMPLETED:1},
   status_labels:{PENDING:'待处理',ACCEPTED:'已接单',IN_PROGRESS:'维修中',COMPLETED:'已完成'}};
-const feedback = {textContent:''};
+const feedback = {textContent:'',hidden:true};
 const category = {parentElement:{style:{}}};
 const charts=[];
 const context={document:{getElementById(id){return ({'ticket-statistics':{textContent:JSON.stringify(counts)},'chart-feedback':feedback,'category-chart':category,'status-chart':{}})[id];}},
@@ -22,5 +22,6 @@ for (const chart of charts) assert.equal(chart.options.animation,false);
 assert.deepEqual(Array.from(charts[0].data.datasets[0].data),[0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1]);
 assert.deepEqual(Array.from(charts[1].data.datasets[0].data),[1,0,0,1]);
 assert.equal(charts[0].data.datasets[0].data.reduce((a,b)=>a+b,0),2);
-assert.ok(feedback.textContent.includes('相同'));
+assert.equal(feedback.textContent,'');
+assert.equal(feedback.hidden,true);
 console.log('PASS: horizontal 16-category chart, stable final frame, unchanged counts; visual rendering NOT verified by this script.');

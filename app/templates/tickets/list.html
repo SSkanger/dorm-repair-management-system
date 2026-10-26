@@ -4,35 +4,32 @@
 {% block content %}
 <section class="page-heading heading-actions">
   <div>
-    <p class="eyebrow">学生工单</p>
     <h1>我的报修</h1>
-    <p class="lead">仅显示当前账号提交的工单，共 {{ ticket_page.total }} 条。</p>
   </div>
   <a class="button" href="{{ url_for('tickets.new_ticket') }}">提交新报修</a>
 </section>
 
 {% include 'tickets/filters.html' %}
-<details class="inline-statistics"><summary>当前匹配 <strong>{{ ticket_page.total }}</strong> 条 · 展开统计分布</summary>{% include 'tickets/statistics.html' %}</details>
+<details class="inline-statistics"><summary>共 <strong>{{ ticket_page.total }}</strong> 条 · 统计</summary>{% include 'tickets/statistics.html' %}</details>
 {% if ticket_page.items %}
   {% include 'tickets/table.html' %}
 {% elif ticket_page.total == 0 and (filters.category or filters.status) %}
   <section class="empty-state">
     <h2>暂无匹配工单</h2>
-    <p>尝试其他类型或状态，或清空筛选查看全部本人记录。</p>
+    <p>请调整筛选条件。</p>
     <a class="button secondary" href="{{ url_for('tickets.ticket_list') }}">清空筛选</a>
   </section>
 {% elif ticket_page.total == 0 %}
   <section class="empty-state">
     <span class="empty-icon">{{ icon('empty',30) }}</span>
     <h2>还没有报修记录</h2>
-    <p>遇到宿舍设施故障时，请创建第一张真实报修工单。</p>
     <a class="button" href="{{ url_for('tickets.new_ticket') }}">提交报修</a>
   </section>
 {% else %}
   <section class="empty-state">
     <span class="empty-icon">{{ icon('list',30) }}</span>
     <h2>本页没有工单</h2>
-    <p>当前页码超出已有记录范围，可以返回最后一页继续查看。</p>
+    <p>页码超出范围。</p>
     <a class="button" href="{{ page_url(ticket_page.total_pages) }}">前往最后一页</a>
   </section>
 {% endif %}

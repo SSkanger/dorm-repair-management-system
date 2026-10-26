@@ -3,10 +3,10 @@
 {% block title %}登录 · 宿舍报修管理系统{% endblock %}
 {% block content %}
 <section class="auth-shell">
-  <aside class="auth-copy"><span class="icon-tile large">{{ icon('building',32) }}</span><p class="eyebrow">欢迎使用</p><h1>让维修协作<br>更简单一些。</h1><p>学生报修、维修接单、进度追踪和结果反馈，在同一个工作台完成。</p><div class="auth-points"><span>{{ icon('ticket') }} 真实记录，随时查阅</span><span>{{ icon('shield') }} 分角色访问，保护工单信息</span><span>{{ icon('check') }} 从提交到评价，形成闭环</span></div></aside>
+  <aside class="auth-copy"><span class="icon-tile large">{{ icon('building',32) }}</span><p class="eyebrow">欢迎使用</p><h1>让维修协作<br>更简单一些。</h1><p>宿舍设施报修与进度查询</p></aside>
   <form class="form-card login-card" method="post" novalidate>
     {{ form.hidden_tag() }}
-    <div class="form-intro"><h2>登录你的工作台</h2><p>使用已创建的学生或维修人员账号。</p></div>
+    <div class="form-intro"><h2>登录</h2></div>
     <div class="field">
       {{ form.username.label }}
       {{ form.username(autocomplete='username', autofocus=true, placeholder='请输入账号', aria_invalid='true' if form.username.errors else 'false', aria_describedby='username-errors') }}
@@ -18,7 +18,6 @@
       <div id="password-errors">{% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
     </div>
     {{ form.submit(class_='button full') }}
-    <p class="auth-hint">{{ icon('shield',16) }} 账号由初始化命令创建，系统不提供注册或管理员登录。</p>
   </form>
 </section>
 {% endblock %}

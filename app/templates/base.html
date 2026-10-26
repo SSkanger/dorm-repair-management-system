@@ -27,7 +27,6 @@
       {% endif %}
       <a href="{{ url_for('dashboard.index') }}" {% if endpoint == 'dashboard.index' %}aria-current="page"{% endif %}>{{ icon('chart') }}<span>工单统计</span></a>
     </nav>
-    <div class="sidebar-bottom">{{ icon('shield') }}<span>身份与工单权限由服务端验证</span></div>
   </aside>
   <button class="sidebar-overlay" type="button" aria-label="关闭导航" hidden></button>
   <div class="app-shell">
@@ -42,7 +41,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="alert alert-{{ category }}" role="status">{{ icon('check',18) if category == 'success' else icon('shield',18) }}<span>{{ message }}</span></div>{% endfor %}{% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer>宿舍报修管理系统 <span>·</span> 企业级 AI 软件设计与开发 · 第 8 题</footer>
+  <footer>宿舍报修管理系统</footer>
 {% if g.user %}</div>{% endif %}
 </body>
 </html>

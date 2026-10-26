@@ -15,11 +15,9 @@
   </div>
   <button class="button" type="submit">应用筛选</button>
   <a class="button secondary" href="{{ url_for(request.endpoint) }}">清空筛选</a>
-  {% if assigned_only %}
-    <span class="field-help">下方展开统计，仅包含我负责的工单</span>
-  {% elif request.endpoint == 'dashboard.index' %}
+  {% if not assigned_only and request.endpoint == 'dashboard.index' %}
     <a href="{{ url_for(list_endpoint, **filters.params()) }}">查看匹配工单</a>
-  {% else %}
+  {% elif not assigned_only %}
     <a href="{{ url_for('dashboard.index', **filters.params()) }}">查看统计</a>
   {% endif %}
 </form>
