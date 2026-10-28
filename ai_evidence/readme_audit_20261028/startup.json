@@ -1,0 +1,30 @@
+{
+  "command": [
+    "C:\\Users\\\u5218\u65b0\u5eb7\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+    "-m",
+    "flask",
+    "--app",
+    "run:app",
+    "run",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "5001",
+    "--no-reload"
+  ],
+  "cwd": "C:\\Users\\\u5218\u65b0\u5eb7\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna",
+  "results": {
+    "/": {
+      "status": 200,
+      "bytes": 3081
+    },
+    "/login": {
+      "status": 200,
+      "bytes": 2855
+    },
+    "/health": {
+      "status": 200,
+      "bytes": 35
+    }
+  }
+}

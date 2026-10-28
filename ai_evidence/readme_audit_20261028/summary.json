@@ -1,0 +1,110 @@
+{
+  "workspace": "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna",
+  "source_database_and_secret_unchanged": true,
+  "steps": [
+    {
+      "label": "python_launcher",
+      "command": [
+        "python",
+        "--version"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "venv",
+      "command": [
+        "C:\\Users\\刘新康\\Desktop\\大三上课程\\企业级AI\\宿舍报修管理系统\\.venv\\Scripts\\python.exe",
+        "-m",
+        "venv",
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "install",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pip",
+        "install",
+        "--no-cache-dir",
+        "--disable-pip-version-check",
+        "-r",
+        "requirements-dev.txt"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "pip_check",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "init",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "-m",
+        "flask",
+        "--app",
+        "run:app",
+        "init-db"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "seed_interactive",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "-m",
+        "flask",
+        "--app",
+        "run:app",
+        "seed-demo"
+      ],
+      "exit": "TIMEOUT"
+    },
+    {
+      "label": "seed_env",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "-m",
+        "flask",
+        "--app",
+        "run:app",
+        "seed-demo"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "pytest",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "http_phase4",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "scripts/phase4_http_smoke.py"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "http_independent",
+      "command": [
+        "C:\\Users\\刘新康\\AppData\\Local\\Temp\\dorm-readme-audit-zb64efna\\.venv\\Scripts\\python.exe",
+        "scripts/phase5_http_acceptance.py"
+      ],
+      "exit": 0
+    }
+  ]
+}
